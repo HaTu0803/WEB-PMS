@@ -11,7 +11,7 @@
   }
 
   .search-header{
-    border-radius: 5px;
+    border-radius: 32px;
     margin-left: 100px;
     margin-top: 20px;
   }
@@ -19,18 +19,17 @@
   .search-navbar {
     display: flex;
     width: 32.0625rem;
-    height: 3.75rem;
+    height: 2.8rem;
     align-items: center;
     gap: 0.5rem;
     flex-shrink: 0;
     margin-left: 5rem;
-  
     border-radius: 1rem;
   background: var(--greys-blue-grey-300, #edf1f5);
   }
   
   .notification-navbar {
-    height: 1rem;
+    height: 0.5rem;
     padding: 1rem;
     align-items: center;
     position: relative;
@@ -40,14 +39,14 @@
   }
   
   .user-navbar {
-    margin-left: 1vw;
+    margin-left: 1rem;
   }
   
   .user-info-navbar {
-    margin-bottom: 2rem;
+    margin-bottom: 0.5rem;
   }
   
   .arrow-user-navbar {
-    margin-bottom: 2rem;
+    margin-bottom: 0.5rem;
     margin-left: 1rem;
   }

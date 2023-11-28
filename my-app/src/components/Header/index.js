@@ -41,7 +41,7 @@ function Header() {
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="32"
-                height="32"
+                height="24"
                 viewBox="0 0 32 32"
                 fill="none"
               >
@@ -94,7 +94,7 @@ function Header() {
                 style={{ display: "flex", flexDirection: "column" }}
                 className="user-info-navbar"
               >
-                <Typography.Title level={4}>Username</Typography.Title>
+                {/* <Typography.Title level={5}>Username</Typography.Title> */}
                 <Typography.Text>Admin</Typography.Text>
               </div>
               <DownOutlined className="arrow-user-navbar" />

@@ -555,12 +555,6 @@ const columns = [
     width: 100,
   },
 
-
-  
-
-
-  
-  
 ];
 const getRandomuserParams = (params) => ({
   results: params.pagination?.pageSize,
