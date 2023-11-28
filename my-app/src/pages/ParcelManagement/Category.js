@@ -122,7 +122,8 @@ function Filter() {
         >
           <Row gutter={[16]}>
             <Col className="gutter-row" span={8}>
-              <Form.Item label="Từ ngày - Đến ngày" name="dateRange">
+              <Form.Item label="Từ ngày - Đến ngày" name="dateRange"  style={{width: 400,
+          }}>
                 <RangePicker presets={rangePresets} onChange={onRangeChange} />
               </Form.Item>
             </Col>
@@ -234,7 +235,6 @@ function Filter() {
           </Row>
         </Form>
       </div>
-      <div></div>
     </div>
   );
 }
