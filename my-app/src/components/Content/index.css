@@ -1,0 +1,10 @@
+/* Content */
+.content-style {
+  text-align: left;
+  padding-left: 50px;
+  min-height: 200px;
+  line-height: 120px;
+  margin: 15px;
+  border-radius: 2px;
+  background-color: #fff;
+}
