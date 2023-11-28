@@ -294,6 +294,273 @@ const columns = [
     dataIndex: "ServiceTypeName",
     width: 100,
   },
+  {
+    title: "Dịch vụ GTGT",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Loại hình",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Giá trị khai",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Số lượng",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Giá cước",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Cước DVGT",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "% PP xăng dầu",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "PP xăng dầu",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "% VAT",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "VAT",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Thành tiền",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "TL thực",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "TL",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "TLQĐ",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Dài",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Rộng",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Cao",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "BC hiện tại",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "TT",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "NV nhập",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "NVGN",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Mã điều tin",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Nội dung",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Ghi chú đặc biệt",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Bên thứ 3",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "VĐ bên thứ 3",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "CP/TG",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Người tạo",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Ngày tạo",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Người sửa",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Ngày sửa",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Mã người (gửi)",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Đại diện (gửi)",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Họ tên (gửi)",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Địa chỉ (gửi)",
+    dataIndex: "",
+    width: 400,
+  },
+  {
+    title: "Điện thoại (gửi)",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Quốc gia (gửi)",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Tỉnh/Thành (gửi)",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Q/Huyện (gửi)",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Họ tên (nhận)",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Địa chỉ (nhận)",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Điện thoại (nhận)",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "BC phát",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "TT phát",
+    dataIndex: "",
+    width: 150,
+  },
+  {
+    title: "Tuyến GN phát",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Mã địa chỉ (nhận)",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Quốc gia (nhận)",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Tỉnh/Thành (nhận)",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Q/Huyện (nhận)",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "P/Xã (nhận)",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Khu phố (nhận) ",
+    dataIndex: "",
+    width: 100,
+  },
+  {
+    title: "Địa chỉ chi tiết",
+    dataIndex: "",
+    width: 100,
+  },
+
+
+  
+
+
+  
+  
 ];
 const getRandomuserParams = (params) => ({
   results: params.pagination?.pageSize,
@@ -331,3 +598,5 @@ function Category() {
   );
 }
 export default Category;
+
+
