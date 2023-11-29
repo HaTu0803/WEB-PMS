@@ -6,6 +6,8 @@ import { DatePicker, Space } from "antd";
 import { useEffect } from "react";
 import { getTodosAPI } from "../../api/todos";
 import "./createOrder.css"
+import axios from "axios";
+import Cookies from 'js-cookie';
 // import Theme from '../../themes/theme';
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -38,33 +40,91 @@ function CreateOrder() {
     },
   ];
 
-  const country = [
-    {
-      value: "Việt Nam",
-      label: "Việt Nam",
-    },
-  ];
+  const [country,setCountry] = useState([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = Cookies.get('authToken')
+      const response = await axios.post(
+        `http://localhost:4000/address/nation`,
+        {
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      const options = response.data.map((d) => ({
+        value: d.nationID,
+        label: d.nationName,
+      }));
+      setCountry(options);
+    };
+    fetchData();
+  }, []);
 
-  const city = [
-    {
-      value: "HCM",
-      label: "Hồ Chí Minh",
-    },
-  ];
+  const [city,setCity] = useState([]);
 
-  const district = [
-    {
-      value: "Quan 5",
-      label: "Quận 5",
-    },
-  ];
+  const handleCountryChange = async (value) => {
+    const token = Cookies.get('authToken')
+    const response = await axios.post(
+      `http://localhost:4000/address/province`,
+      {
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+    const options = response.data.map((d) => ({
+      value: d.provinceID,
+      label: d.provinceName,
+    }));
+    setCity(options);
+  }
 
-  const ward = [
-    {
-      value: "Quan 5",
-      label: "Quận 5",
-    },
-  ];
+  const [district,setDistrict] = useState([])
+
+  const handleCityChange = async (value) => {
+    const token = Cookies.get('authToken');
+    const response = await axios.post(
+      `http://localhost:4000/address/district`,
+      {
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+    const filteredDistricts = response.data.filter((d) => d.provinceID === value);
+    const options = filteredDistricts.map((d) => ({
+      value: d.districtID,
+      label: d.districtName,
+    }));
+    setDistrict(options);
+  }
+  const [ward,setWard] = useState([]);
+  const handleDistrictChange = async (value) => {
+    const token = Cookies.get('authToken');
+    const response = await axios.post(
+      `http://localhost:4000/address/ward`,
+      {
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+    const filteredWards = response.data.filter((d) => d.districtID === value);
+    const options = filteredWards.map((d) => ({
+      value: d.wardID,
+      label: d.wardName,
+    }));
+    setWard(options);
+  }
 
   const LH= [
     {
@@ -200,14 +260,11 @@ function CreateOrder() {
               showSearch
               placeholder=""
               optionFilterProp="children"
-              filterOption={(input, option) => {
-                const value = option.value || "";
-                return value.toLowerCase().includes(input.toLowerCase());
-              }}
+              onChange={handleCountryChange}
             >
               {country.map((opt) => (
                 <Option key={opt.value} value={opt.value}>
-                  {opt.value}
+                  {opt.label}
                 </Option>
               ))}
             </Select>
@@ -219,14 +276,11 @@ function CreateOrder() {
               showSearch
               placeholder=""
               optionFilterProp="children"
-              filterOption={(input, option) => {
-                const value = option.value || "";
-                return value.toLowerCase().includes(input.toLowerCase());
-              }}
+              onChange={handleCityChange}
             >
               {city.map((opt) => (
                 <Option key={opt.value} value={opt.value}>
-                  {opt.value}
+                  {opt.label}
                 </Option>
               ))}
             </Select>
@@ -242,10 +296,11 @@ function CreateOrder() {
                 const value = option.value || "";
                 return value.toLowerCase().includes(input.toLowerCase());
               }}
+              onChange={handleDistrictChange}
             >
               {district.map((opt) => (
                 <Option key={opt.value} value={opt.value}>
-                  {opt.value}
+                  {opt.label}
                 </Option>
               ))}
             </Select>
@@ -264,7 +319,7 @@ function CreateOrder() {
             >
               {ward.map((opt) => (
                 <Option key={opt.value} value={opt.value}>
-                  {opt.value}
+                  {opt.label}
                 </Option>
               ))}
             </Select>

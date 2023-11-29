@@ -1,9 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from 'react';
 import "./Category.css";
 import { Col, Row, Button, Form, Input, Select, Table } from "antd";
 import dayjs from "dayjs";
 import { DatePicker, Space } from "antd";
 import { Typography } from "antd";
+import qs from 'qs';
+import Popconfirm from 'antd/es/popconfirm';
+
 // import Theme from '../../themes/theme';
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -18,6 +21,12 @@ const { Option } = Select;
 // const fetchData = async () => {
 //   setTodos(await getTodosAPI());
 // };
+
+const handleDelete = (key) => {
+};
+
+const dataSource = [];
+
 const onRangeChange = (dates, dateStrings) => {
   if (dates) {
     console.log("Chọn ngày: ", dates[0], ", to: ", dates[1]);
@@ -248,15 +257,13 @@ const columns = [
     dataIndex: "CreatedDate",
     sorter: true,
     // render: (name) => `${name.first} ${name.last}`,
-    width: 100,
-    fixed: "top",
+    width: 200,
     fixed: "left",
   },
   {
     title: "Giờ",
     dataIndex: "CreatedDate",
-    width: 100,
-    fixed: "top",
+    width: 200,
     fixed: "left",
   },
   {
@@ -265,7 +272,6 @@ const columns = [
     sorter: true,
     sorter: (a, b) => a.MailID - b.MailID,
     width: 200,
-    fixed: "top",
     fixed: "left",
   },
   {
@@ -273,7 +279,7 @@ const columns = [
     dataIndex: "",
     // sorter: true,
     // sorter: (a, b) => a.MailID - b.MailID,
-    width: 100,
+    width: 200,
   },
   {
     title: "Tên trạng thái",
@@ -285,232 +291,232 @@ const columns = [
   {
     title: "Mã VĐ KH",
     dataIndex: "",
-    width: 100,
+    width: 200,
   },
   {
     title: "VĐ chuyển hoàn",
     dataIndex: "",
-    width: 100,
+    width: 200,
   },
   {
     title: "DV",
     dataIndex: "ServiceTypeName",
-    width: 100,
+    width: 200,
   },
   {
     title: "Dịch vụ GTGT",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "ServiceTypeSpecialNote",
+    width: 200,
   },
   {
     title: "Loại hình",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "MailType",
+    width: 200,
   },
   {
     title: "Giá trị khai",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "DeclaredValue",
+    width: 200,
   },
   {
     title: "Số lượng",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "PackageAmount",
+    width: 200,
   },
   {
     title: "Giá cước",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "BasicFee",
+    width: 200,
   },
   {
     title: "Cước DVGT",
     dataIndex: "",
-    width: 100,
+    width: 200,
   },
   {
     title: "% PP xăng dầu",
     dataIndex: "",
-    width: 100,
+    width: 200,
   },
   {
     title: "PP xăng dầu",
     dataIndex: "",
-    width: 100,
+    width: 200,
   },
   {
     title: "% VAT",
     dataIndex: "",
-    width: 100,
+    width: 200,
   },
   {
     title: "VAT",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "VATFee",
+    width: 200,
   },
   {
     title: "Thành tiền",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "TotalFee",
+    width: 200,
   },
   {
     title: "TL thực",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "MailRealWeight",
+    width: 200,
   },
   {
     title: "TL",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "MailTotalWeight",
+    width: 200,
   },
   {
     title: "TLQĐ",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "MailConvertedWeight",
+    width: 200,
   },
   {
     title: "Dài",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "MailLength",
+    width: 200,
   },
   {
     title: "Rộng",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "MailWidth",
+    width: 200,
   },
   {
     title: "Cao",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "MailHeight",
+    width: 200,
   },
   {
     title: "BC hiện tại",
     dataIndex: "",
-    width: 100,
+    width: 200,
   },
   {
     title: "TT",
     dataIndex: "",
-    width: 100,
+    width: 200,
   },
   {
     title: "NV nhập",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "CreatedUser",
+    width: 200,
   },
   {
     title: "NVGN",
     dataIndex: "",
-    width: 100,
+    width: 200,
   },
   {
     title: "Mã điều tin",
     dataIndex: "",
-    width: 100,
+    width: 200,
   },
   {
     title: "Nội dung",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "PackageNotes",
+    width: 200,
   },
   {
     title: "Ghi chú đặc biệt",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "PackageNotes",
+    width: 200,
   },
   {
     title: "Bên thứ 3",
     dataIndex: "",
-    width: 100,
+    width: 200,
   },
   {
     title: "VĐ bên thứ 3",
     dataIndex: "",
-    width: 100,
+    width: 200,
   },
   {
     title: "CP/TG",
     dataIndex: "",
-    width: 100,
+    width: 200,
   },
   {
     title: "Người tạo",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "PostOfficeCreatedID",
+    width: 200,
   },
   {
     title: "Ngày tạo",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "CreatedDate",
+    width: 200,
   },
   {
     title: "Người sửa",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "PostOfficeCreatedID",
+    width: 200,
   },
   {
     title: "Ngày sửa",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "CreatedDate",
+    width: 200,
   },
   {
     title: "Mã người (gửi)",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "CustomerID",
+    width: 200,
   },
   {
     title: "Đại diện (gửi)",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "CustomerRepresent",
+    width: 200,
   },
   {
     title: "Họ tên (gửi)",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "CustomerName",
+    width: 200,
   },
   {
     title: "Địa chỉ (gửi)",
-    dataIndex: "",
+    dataIndex: "CustomerAddress",
     width: 400,
   },
   {
     title: "Điện thoại (gửi)",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "CustomerPhoneNumber",
+    width: 200,
   },
   {
     title: "Quốc gia (gửi)",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "CustomerAddress",
+    width: 200,
   },
   {
     title: "Tỉnh/Thành (gửi)",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "CustomerAddress",
+    width: 200,
   },
   {
     title: "Q/Huyện (gửi)",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "CustomerAddress",
+    width: 200,
   },
   {
     title: "Họ tên (nhận)",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "RecieverName",
+    width: 200,
   },
   {
     title: "Địa chỉ (nhận)",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "ReceiverAddress",
+    width: 200,
   },
   {
     title: "Điện thoại (nhận)",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "ReceiverPhoneNumber",
+    width: 200,
   },
   {
     title: "BC phát",
     dataIndex: "",
-    width: 100,
+    width: 200,
   },
   {
     title: "TT phát",
@@ -520,43 +526,54 @@ const columns = [
   {
     title: "Tuyến GN phát",
     dataIndex: "",
-    width: 100,
+    width: 200,
   },
   {
     title: "Mã địa chỉ (nhận)",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "ReceiverPostcodeQT",
+    width: 200,
   },
   {
     title: "Quốc gia (nhận)",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "ReceiverNationID",
+    width: 200,
   },
   {
     title: "Tỉnh/Thành (nhận)",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "ReceiverProvinceID",
+    width: 200,
   },
   {
     title: "Q/Huyện (nhận)",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "ReceiverDistrictID",
+    width: 200,
   },
   {
     title: "P/Xã (nhận)",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "ReceiverWardID",
+    width: 200,
   },
   {
     title: "Khu phố (nhận) ",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "ReceiverAddressID",
+    width: 200,
   },
   {
     title: "Địa chỉ chi tiết",
-    dataIndex: "",
-    width: 100,
+    dataIndex: "ReceiverDetailedAddress",
+    width: 200,
+    fixed: "right",
   },
+  {
+    title: 'operation',
+    dataIndex: 'operation',
+    render: (_, record) =>
+      dataSource.length >= 1 ? (
+        <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record.key)}>
+          <a>Delete</a>
+        </Popconfirm>
+      ) : null,
+  }
 ];
 
 const data = [
@@ -630,6 +647,46 @@ const getRandomuserParams = (params) => ({
   ...params,
 });
 function OrderList() {
+  const [data, setData] = useState();
+  const [loading, setLoading] = useState(false);
+  const [tableParams, setTableParams] = useState({
+    pagination: {
+      current: 1,
+      pageSize: 10,
+    },
+  });
+  const fetchData = () => {
+    setLoading(true);
+    fetch(`https://randomuser.me/api?${qs.stringify(getRandomuserParams(tableParams))}`)
+      .then((res) => res.json())
+      .then(({ results }) => {
+        setData(results);
+        setLoading(false);
+        setTableParams({
+          ...tableParams,
+          pagination: {
+            ...tableParams.pagination,
+            total: 200,
+            // 200 is mock data, you should read it from server
+            // total: data.totalCount,
+          },
+        });
+      });
+  };
+  useEffect(() => {
+    fetchData();
+  }, [JSON.stringify(tableParams)]);
+  const handleTableChange = (pagination, filters, sorter) => {
+    setTableParams({
+      pagination,
+      filters,
+      ...sorter,
+    });
+
+    if (pagination.pageSize !== tableParams.pagination?.pageSize) {
+      setData([]);
+    }
+  };
   const rowSelection = {
     onChange: (selectedRowKeys, selectedRows) => {
       console.log(
@@ -653,16 +710,17 @@ function OrderList() {
       columns={columns}
       // rowKey={(record) => record.login.uuid}
       dataSource={data}
-      // pagination={tableParams.pagination}
-      // loading={loading}
-      // onChange={handleTableChange}
+      pagination={tableParams.pagination}
+      loading={loading}
+      onChange={handleTableChange}
+      size="middle"
       scroll={{
-        x: 500,
-        y: 400,
+        x: 'calc(700px + 50%)',
+        y: 300,
       }}
     />
   );
-}
+};
 function Category() {
   return (
     <>
@@ -670,5 +728,5 @@ function Category() {
       <OrderList />
     </>
   );
-}
+};
 export default Category;
