@@ -117,13 +117,16 @@ function Filter() {
           onValuesChange={onFormLayoutChange}
           size={componentSize}
           style={{
-            maxWidth: 1000,
+            maxWidth: 1200,
           }}
         >
-          <Row gutter={[16]}>
+          <Row gutter={[24]}>
             <Col className="gutter-row" span={8}>
-              <Form.Item label="Từ ngày - Đến ngày" name="dateRange"  style={{width: 400,
-          }}>
+              <Form.Item
+                label="Từ ngày - Đến ngày"
+                name="dateRange"
+                // style={{ width: 400 }}
+              >
                 <RangePicker presets={rangePresets} onChange={onRangeChange} />
               </Form.Item>
             </Col>
@@ -131,9 +134,9 @@ function Filter() {
               <Form.Item label="Trạng thái" name="status">
                 <Select
                   showSearch
-                  style={{
-                    width: 200,
-                  }}
+                  // style={{
+                  //   width: 200,
+                  // }}
                   placeholder="Search to Select"
                   optionFilterProp="children"
                   filterOption={(input, option) =>
@@ -152,10 +155,10 @@ function Filter() {
               <Form.Item label="Dịch vụ" name="service">
                 <Select
                   showSearch
-                  style={{
-                    width: 200,
-                    // color: greyColors[500]
-                  }}
+                  // style={{
+                  //   width: 200,
+                  //   // color: greyColors[500]
+                  // }}
                   placeholder="Chọn dịch vụ"
                   optionFilterProp="children"
                   filterOption={(input, service) =>
@@ -554,7 +557,72 @@ const columns = [
     dataIndex: "",
     width: 100,
   },
+];
 
+const data = [
+  {
+    key: "1",
+    CreatedDate: "2021-08-01",
+    MailID: "123456789",
+    MailStatus: "Đã phát",
+    ServiceTypeName: "Chuyển phát nhanh",
+  },
+  {
+    key: "2",
+    CreatedDate: "2021-08-01",
+    MailID: "123456789",
+    MailStatus: "Đã phát",
+    ServiceTypeName: "Chuyển phát nhanh",
+  },
+  {
+    key: "3",
+    CreatedDate: "2021-08-01",
+    MailID: "123456789",
+    MailStatus: "Đã phát",
+    ServiceTypeName: "Chuyển phát nhanh",
+  },
+  {
+    key: "4",
+    CreatedDate: "2021-08-01",
+    MailID: "123456789",
+    MailStatus: "Đã phát",
+    ServiceTypeName: "Chuyển phát nhanh",
+  },
+  {
+    key: "5",
+    CreatedDate: "2021-08-01",
+    MailID: "123456789",
+    MailStatus: "Đã phát",
+    ServiceTypeName: "Chuyển phát nhanh",
+  },
+  {
+    key: "6",
+    CreatedDate: "2021-08-01",
+    MailID: "123456789",
+    MailStatus: "Đã phát",
+    ServiceTypeName: "Chuyển phát nhanh",
+  },
+  {
+    key: "7",
+    CreatedDate: "2021-08-01",
+    MailID: "123456789",
+    MailStatus: "Đã phát",
+    ServiceTypeName: "Chuyển phát nhanh",
+  },
+  {
+    key: "8",
+    CreatedDate: "2021-08-01",
+    MailID: "123456789",
+    MailStatus: "Đã phát",
+    ServiceTypeName: "Chuyển phát nhanh",
+  },
+  {
+    key: "9",
+    CreatedDate: "2021-08-01",
+    MailID: "123456789",
+    MailStatus: "Đã phát",
+    ServiceTypeName: "Chuyển phát nhanh",
+  },
 ];
 const getRandomuserParams = (params) => ({
   results: params.pagination?.pageSize,
@@ -562,35 +630,45 @@ const getRandomuserParams = (params) => ({
   ...params,
 });
 function OrderList() {
-  <Table
-    // rowSelection={{
-    //   type: selectionType,
-    //   ...rowSelection,
-    // }}
-    columns={columns}
-    // rowKey={(record) => record.login.uuid}
-    // dataSource={data}
-    // pagination={tableParams.pagination}
-    // loading={loading}
-    // onChange={handleTableChange}
-    scroll={{
-      x: 2000,
-      y: 400,
-    }}
-  />;
+  const rowSelection = {
+    onChange: (selectedRowKeys, selectedRows) => {
+      console.log(
+        `selectedRowKeys: ${selectedRowKeys}`,
+        "selectedRows: ",
+        selectedRows
+      );
+    },
+    getCheckboxProps: (record) => ({
+      // Column configuration not to be checked
+      MailID: record.MailID,
+    }),
+  };
+  const [selectionType] = useState("checkbox");
+  return (
+    <Table
+      rowSelection={{
+        type: selectionType,
+        ...rowSelection,
+      }}
+      columns={columns}
+      // rowKey={(record) => record.login.uuid}
+      dataSource={data}
+      // pagination={tableParams.pagination}
+      // loading={loading}
+      // onChange={handleTableChange}
+      scroll={{
+        x: 500,
+        y: 400,
+      }}
+    />
+  );
 }
 function Category() {
   return (
-    <div>
-      <div>
-        <Filter />
-      </div>
-      <div>
-        <OrderList />
-      </div>
-    </div>
+    <>
+      <Filter />
+      <OrderList />
+    </>
   );
 }
 export default Category;
-
-
