@@ -290,17 +290,17 @@ function CreateOrder() {
       </Row>
       <Row gutter={24} >
         <Col span={6} order={1}>
-          <Form.Item label="BC phát" name="Sending_representative" >
+          <Form.Item label="BC phát" name="Post_Office_Delivery" >
             <Input showSearch />
           </Form.Item>
         </Col>
         <Col span={6} order={2}>
-          <Form.Item label="Tuyến GN phát" name="Sending_representative">
+          <Form.Item label="Tuyến GN phát" name="Transmitter_Route">
             <Input showSearch />
           </Form.Item>
         </Col>
         <Col span={6} order={3}>
-          <Form.Item label="Vùng phát" name="Sending_representative">
+          <Form.Item label="Vùng phát" name="Broadcast_Area">
             <Input showSearch />
           </Form.Item>
         </Col>
@@ -312,7 +312,7 @@ function CreateOrder() {
       </Typography.Title>
       <Row gutter={24}>
         <Col flex={2}>
-          <Form.Item label="Loại hình" name="customerId">
+          <Form.Item label="Loại hình" name="Type">
             <Select
               showSearch
               placeholder=""
@@ -331,28 +331,28 @@ function CreateOrder() {
           </Form.Item>
         </Col>
         <Col flex={4}>
-          <Form.Item label="TL thực" name="Phone_Number">
+          <Form.Item label="TL thực" name="Actual_weight">
             <Input showSearch />
           </Form.Item>
         </Col>
         <Col flex={4}>
-          <Form.Item label="TLQĐ" name="Sender">
+          <Form.Item label="TLQĐ" name="Conversion_weight">
             <Input showSearch />
           </Form.Item>
         </Col>
         <Col flex={2}>
-          <Form.Item label="TL" name="Customer's_bill_code">
+          <Form.Item label="TL" name="Weight">
             <Input showSearch />
           </Form.Item>
         </Col>
         <Col flex={2}>
-          <Form.Item label="Số kiện" name="Customer's_bill_code">
+          <Form.Item label="Số kiện" name="Package_Quantity">
             <InputNumber min={0} max={100} disabled={disabled}  defaultValue={0}/>
           </Form.Item>
          
         </Col>
         <Col flex={2}>
-          <Form.Item name="Customer's_bill_code_button">
+          <Form.Item name="Package_Quantity_button">
           <Button onClick={toggle} type="primary">
                 Tạo kiện
               </Button>

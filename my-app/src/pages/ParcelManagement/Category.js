@@ -100,7 +100,7 @@ function Filter() {
   };
 
   return (
-    <div>
+    <div class="Category-style">
       <Typography.Title level={3}>DANH MỤC</Typography.Title>
       <div>
         <Form

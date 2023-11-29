@@ -8,5 +8,6 @@
   margin: 15px;
   border-radius: 2px;
   background-color: #fff;
-  font-size: var(--text-xl);
+  font-size: var(--text-base);
+  font-family: var(--font-montserrat);
 }

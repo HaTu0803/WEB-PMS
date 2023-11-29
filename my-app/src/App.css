@@ -34,6 +34,10 @@
   --text-7xl: 4.5rem; /* 72px */
   --text-8xl: 6rem; /* 96px */
   --text-9xl: 8rem; /* 128px */
+
+  --font-montserrat: Montserrat;
+  --font-poppins: Poppins;
+  --font-roboto: Roboto;
 }
 
 * {
