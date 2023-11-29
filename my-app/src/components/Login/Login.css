@@ -1,0 +1,12 @@
+.body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh; /* Set the height of the body to 100% of the viewport height */
+    margin: 0; /* Remove default margin */
+  }
+  
+  /* Your existing styles for the form can remain unchanged */
+  .Form {
+    max-width: 600px;
+  }

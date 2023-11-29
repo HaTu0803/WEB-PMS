@@ -2,6 +2,7 @@ import Header from "./components/Header/index";
 import SideMenu from "./components/SideMenu/index";
 import Content from "./components/Content/index";
 import Footer from "./components/Footer/index";
+import Login from "./components/Login/Login";
 import "./App.css";
 import {theme, Space,Layout} from "antd";
 
@@ -15,6 +16,7 @@ import {theme, Space,Layout} from "antd";
         <Content></Content>
       </Layout>
     </Layout>
+   <Login></Login>
 
     </div>
 
