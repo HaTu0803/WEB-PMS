@@ -1,8 +1,21 @@
 @import '~antd/dist/reset.css';
-.Category-style {
+/* .Category-style {
     font-size: var(--text-base);
 }
 .gutter-row {
     font-size: var(--text-base);
     font-family: var(--font-montserrat);
+} */
+.category-wrapper{
+    
+    margin: 0 auto;
+    margin-top: 20px;
+}
+.category-table-wrapper{
+    width: 75vw;
+    margin: 0 auto;
+}
+
+.min-width-110 .ant-col label{
+    min-width: 110px!important;
 }

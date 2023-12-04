@@ -7,3 +7,11 @@
     margin-right: 20px;
     font-size: var(--text-base);
 }
+
+.min-width-110 .ant-col label{
+    min-width: 110px!important;
+}
+
+.ant-typography css-dev-only-do-not-override-18iikkb{
+    margin-top: 10px;
+}

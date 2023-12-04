@@ -1,732 +1,990 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import "./Category.css";
-import { Col, Row, Button, Form, Input, Select, Table } from "antd";
-import dayjs from "dayjs";
+import {
+  Col,
+  Row,
+  Button,
+  Form,
+  Input,
+  Select,
+  Table,
+  InputNumber,
+  Popconfirm,
+  
+} from "antd";
+import { Link } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 import { DatePicker, Space } from "antd";
 import { Typography } from "antd";
-import qs from 'qs';
-import Popconfirm from 'antd/es/popconfirm';
-
-// import Theme from '../../themes/theme';
-const { RangePicker } = DatePicker;
+import axios from "axios";
+import Cookies from "js-cookie";
+import { Modal } from "antd";
+import moment from "moment";
+import dayjs from "dayjs";
+import { Control, Controller, useForm } from "react-hook-form";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 const { Option } = Select;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+function Filter({ dataSource, setDataSource }) {
+  const RHFDatePickerField = (props) => {
+    return (
+      <Controller
+      control={props.control}
+      name={props.name}
+      rules={{
+        required: "This field is required",
+      }}
+      render={({ field, fieldState }) => {
+        return (
+          <>
+            <DatePicker
+              placeholder={props.placeholder}
+              status={fieldState.error ? "error" : undefined}
+              ref={field.ref}
+              name={field.name}
+              onBlur={field.onBlur}
+              value={field.value ? dayjs(field.value) : null}
+              onChange={(date) => {
+                field.onChange(date ? date.toISOString() : null);
+              }}
+            />
+            <br />
+            {fieldState.error ? (
+              <span style={{ color: "red" }}>{fieldState.error?.message}</span>
+            ) : null}
+          </>
+        );
+      }}
+    />
+  );
+};
+const { handleSubmit, control, watch } = useForm({
+  defaultValues: {
+    startDate: '',
+    endDate: '',
+    status: '',
+    Service: '',
+  },
+});
 
-// const Todos = () => {
-//   const [todos, setTodos] = useState([]);
-//   useEffect(() => {
-//     fetchData();
-//   }, []);
-// };
-
-// const fetchData = async () => {
-//   setTodos(await getTodosAPI());
-// };
-
-const handleDelete = (key) => {
+const handleFormFinish = (data) => {
+  console.log('Form values:', data);
+  // Place your logic for fetching data or other actions here
 };
 
-const dataSource = [];
+const [tempStartDate, setTempStartDate] = useState('');
+  const [tempEndDate, setTempEndDate] = useState('');
 
-const onRangeChange = (dates, dateStrings) => {
-  if (dates) {
-    console.log("Chọn ngày: ", dates[0], ", to: ", dates[1]);
-    console.log("From: ", dateStrings[0], ", to: ", dateStrings[1]);
-  } else {
-    console.log("Clear");
-  }
-};
+  useEffect(() => {
+    const startDate = watch('startDate');
+    const endDate = watch('endDate');
 
-const rangePresets = [
-  {
-    label: "7 ngày trước",
-    value: [dayjs().add(-7, "d"), dayjs()],
-  },
-  {
-    label: "14 ngày trước",
-    value: [dayjs().add(-14, "d"), dayjs()],
-  },
-  {
-    label: "30 ngày trước",
-    value: [dayjs().add(-30, "d"), dayjs()],
-  },
-];
+    console.log('startDate:', startDate);
+    console.log('endDate:', endDate);
+    console.log('tempStartDate:', tempStartDate);
+    console.log('tempEndDate:', tempEndDate);
 
-const options = [
-  {
-    value: "1",
-    label: "Not Identified",
-  },
-  {
-    value: "2",
-    label: "Closed",
-  },
-  {
-    value: "3",
-    label: "Communicated",
-  },
-  {
-    value: "4",
-    label: "Identified",
-  },
-  {
-    value: "5",
-    label: "Resolved",
-  },
-  {
-    value: "6",
-    label: "Cancelled",
-  },
-];
+    if (startDate !== '' && endDate !== '' && (startDate !== tempStartDate || endDate !== tempEndDate)) {
+      setTempStartDate(startDate);
+      setTempEndDate(endDate);
 
-const services = [
-  {
-    ServiceTypeID: "DE",
-    ServiceTypeName: "Chuyển phát nhanh",
-  },
-  {
-    ServiceTypeID: "DF",
-    ServiceTypeName: "Chuyển phát tiết kiệm",
-  },
-  {
-    ServiceTypeID: "ED",
-    ServiceTypeName: "Dịch vụ COD nhanh",
-  },
-  {
-    ServiceTypeID: "EE",
-    ServiceTypeName: "Economy Quốc tế",
-  },
-  {
-    ServiceTypeID: "EF",
-    ServiceTypeName: "Dịch vụ COD tiết kiệm",
-  },
-];
+      const fetchDataSources = async () => {
+        const token = Cookies.get('authToken');
+        const response = await axios.post(
+          'http://localhost:4000/mail/GetMailByDate',
+          {
+            FromDate: startDate, // Use startDate directly
+            ToDate: endDate,     // Use endDate directly
+            MailStatus: '',
+            serviceTypeID: '',
+            CustomerID: '',
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setDataSource(response.data);
+        console.log(response.data);
+      };
 
-function Filter() {
-  // const {greyColors} = Theme();
+      fetchDataSources();
+    }
+  });
+// useEffect(() => {
+//   const fetchDataSources = async () => {
+//     const token = Cookies.get("authToken");
+//     const response = await axios.post(
+//       'http://localhost:4000/mail/GetMailByDate', {
+
+//     }, {
+//       headers: {
+//         Authorization: `Bearer ${token}`,
+//       },
+//     });
+//     setDataSource(response.data);
+//   };
+//   fetchDataSources();
+// // }, [watch('startDate'), watch('endDate'), watch('status'), watch('service')]);
+// }, []);
+const [serviceType, setServiceType] = useState([]);
+  useEffect(() => {
+    const fetchServiceType = async () => {
+      const token = Cookies.get("authToken");
+      const response = await axios.post(
+        "http://localhost:4000/mail/GetServiceType",
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      // const defaultOption = response.data[0];
+      const options = response.data.map((d) => ({
+        value: d.serviceTypeID || "",
+        label: d.serviceTypeName,
+      }));
+
+      // options.unshift(defaultOption);
+      setServiceType(options);
+    };
+    fetchServiceType();
+  }, []);
   const [componentSize, setComponentSize] = useState("default");
   const onFormLayoutChange = ({ size }) => {
     setComponentSize(size);
+  };
+  const [link, setLink] = useState("");
+  useEffect(() => {
+    setLink(window.location.href);
+  }, [link]);
+
+  const [customer, setCustomer] = useState([]);
+  const [customerID, setCustomerID] = useState("");
+  const [customerInfo, setCustomerInfo] = useState({
+    address: "",
+    phoneNumber: "",
+    label: "",
+  });
+  useEffect(() => {
+    const fetchCustomer = async () => {
+      const token = Cookies.get("authToken");
+      const response = await axios.post(
+        "http://localhost:4000/postoffice/GetCustomer/ABH",
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const options = response.data.map((d) => ({
+        value: d.customerID,
+        label: d.customerName,
+        address: d.address,
+        phoneNumber: d.phoneNumber,
+      }));
+      setCustomer(options);
+    };
+    fetchCustomer();
+  }, []);
+
+  const handleCustomerChange = (value) => {
+    setCustomerID(value);
+    const selectedCustomer = customer.find((c) => c.value === value);
+    setCustomerInfo(selectedCustomer);
+  };
+
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+
+  const handleDeleteModalVisible = (visible) => {
+    setDeleteModalVisible(visible);
   };
 
   return (
     <div class="Category-style">
       <Typography.Title level={3}>DANH MỤC</Typography.Title>
-      <div>
-        <Form
-          labelCol={{
-            span: 12,
-          }}
-          wrapperCol={{
-            span: 20,
-          }}
-          layout="horizontal"
-          initialValues={{
-            size: componentSize,
-          }}
-          onValuesChange={onFormLayoutChange}
-          size={componentSize}
-          style={{
-            maxWidth: 1200,
-          }}
+      <Form onFinish={handleSubmit(handleFormFinish)}
+    >
+     <form>
+        <Row gutter={[24]}
+        
+      justify="space-between"  // Set justify to space-between
+      align="flex-start"       // Set align to flex-start
         >
-          <Row gutter={[24]}>
-            <Col className="gutter-row" span={8}>
-              <Form.Item
-                label="Từ ngày - Đến ngày"
-                name="dateRange"
-                // style={{ width: 400 }}
+          <Col flex={5} >
+          {/* <span>{JSON.stringify(watch('startDate'))}</span> */}
+           {/* console.log({JSON.stringify(watch('startDate'))}); */}
+            <Form.Item
+              label="Từ ngày"
+              name="dateRange_1"
+              // style={{ width: 400 }}
+              className="min-width-110"
+            >
+               <RHFDatePickerField
+          placeholder="Từ ngày"
+          control={control}
+          name="startDate"
+        />
+            </Form.Item>
+          </Col>
+          <Col flex={5} >
+            <Form.Item
+              label="Đến ngày"
+              name="dateRange_2"
+              // style={{ width: 400 }}
+              className="min-width-110"
+            >
+             <RHFDatePickerField
+          placeholder="Đến ngày"
+          control={control}
+          name="endDate"
+        />
+            </Form.Item>
+          </Col>
+          <Col flex={5} >
+            <Form.Item label="Trạng thái" name="status">
+              <Select
+                showSearch
+                placeholder="Search to Select"
+                optionFilterProp="children"
+                filterOption={(input, option) =>
+                  (option?.label ?? "").includes(input)
+                }
               >
-                <RangePicker presets={rangePresets} onChange={onRangeChange} />
-              </Form.Item>
-            </Col>
-            <Col className="gutter-row" span={8}>
-              <Form.Item label="Trạng thái" name="status">
-                <Select
-                  showSearch
-                  // style={{
-                  //   width: 200,
-                  // }}
-                  placeholder="Search to Select"
-                  optionFilterProp="children"
-                  filterOption={(input, option) =>
-                    (option?.label ?? "").includes(input)
-                  }
-                >
-                  {options.map((opt) => (
+                {/* {customer.map((opt) => (
                     <Option key={opt.value} value={opt.value}>
                       {opt.label}
                     </Option>
-                  ))}
-                </Select>
-              </Form.Item>
+                  ))} */}
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col flex={5} >
+          <Form.Item
+              label="Dịch vụ"
+              name="Service"
+            >
+              <Select showSearch placeholder="" optionFilterProp="children">
+                {serviceType.map((opt) => (
+                  <Option key={opt.value} value={opt.value}>
+                    {opt.value} - {opt.label}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col flex={4} >
+          <Button type="primary" htmlType="submit">
+                Lấy dữ liệu
+              </Button>
             </Col>
-            <Col className="gutter-row" span={8}>
-              <Form.Item label="Dịch vụ" name="service">
-                <Select
-                  showSearch
-                  // style={{
-                  //   width: 200,
-                  //   // color: greyColors[500]
-                  // }}
-                  placeholder="Chọn dịch vụ"
-                  optionFilterProp="children"
-                  filterOption={(input, service) =>
-                    (service?.ServiceTypeID ?? "").includes(input)
-                  }
-                >
-                  {services.map((service) => (
+        </Row>
+        </form>
+
+        <Row gutter={[24]}>
+          <Col span={16} order={1}>
+            <Form.Item
+              label="Mã khách hàng"
+              name="customerId"
+              placeholder="Chọn mã khách hàng"
+              className="min-width-110"
+            >
+              <Select
+                showSearch
+                // style={{
+                //   width: 540,
+                // }}
+                placeholder=""
+                optionFilterProp="children"
+                onChange={handleCustomerChange}
+              >
+                {customer.map((opt) => (
+                  <Option key={opt.value} value={opt.value}>
+                    {opt.value} - {opt.label}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={6} order={2}>
+            <Form.Item label="Tình trạng" name="Status_2">
+              <Select
+                showSearch
+                placeholder=""
+                optionFilterProp="children"
+                filterOption={(input, service) =>
+                  (service?.ServiceTypeID ?? "").includes(input)
+                }
+              >
+                {/* {services.map((service) => (
                     <Option
                       key={service.ServiceTypeID}
                       value={service.ServiceTypeID}
                     >
                       {service.ServiceTypeID}-{service.ServiceTypeName}
                     </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={[16]}>
-            <Col className="gutter-row" span={8}>
-              <Form.Item label="Mã khách hàng" name="customerId">
-                <Select
-                  showSearch
-                  style={{
-                    width: 540,
-                  }}
-                  placeholder=""
-                  optionFilterProp="children"
-                  filterOption={(input, option) =>
-                    (option?.label ?? "").includes(input)
-                  }
-                >
-                  {options.map((opt) => (
-                    <Option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col className="gutter-row" offset={10} span={4}>
-              <Form.Item label="Tình trạng" name="customerStatus">
-                <Select
-                  showSearch
-                  style={{
-                    width: 200,
-                  }}
-                  placeholder=""
-                  optionFilterProp="children"
-                  filterOption={(input, service) =>
-                    (service?.ServiceTypeID ?? "").includes(input)
-                  }
-                >
-                  {services.map((service) => (
-                    <Option
-                      key={service.ServiceTypeID}
-                      value={service.ServiceTypeID}
-                    >
-                      {service.ServiceTypeID}-{service.ServiceTypeName}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={[16]}>
-            <Col className="gutter-row" offset={2} span={4}>
-              <Form.Item label="Input" name="input">
-                <Input
-                  showSearch
-                  style={{
-                    width: 880,
-                  }}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-        </Form>
-      </div>
+                  ))} */}
+              </Select>
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={[24]}>
+          <Col span={24}>
+            <Form.Item label="Input" name="input" className="min-width-110">
+              <Input
+                showSearch
+                style={{
+                  width: 880,
+                }}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+      </Form>
     </div>
   );
 }
-
-const columns = [
-  {
-    title: "Ngày nhận",
-    dataIndex: "CreatedDate",
-    sorter: true,
-    // render: (name) => `${name.first} ${name.last}`,
-    width: 200,
-    fixed: "left",
-  },
-  {
-    title: "Giờ",
-    dataIndex: "CreatedDate",
-    width: 200,
-    fixed: "left",
-  },
-  {
-    title: "Số vận đơn",
-    dataIndex: "MailID",
-    sorter: true,
-    sorter: (a, b) => a.MailID - b.MailID,
-    width: 200,
-    fixed: "left",
-  },
-  {
-    title: "Tên hàng COD",
-    dataIndex: "",
-    // sorter: true,
-    // sorter: (a, b) => a.MailID - b.MailID,
-    width: 200,
-  },
-  {
-    title: "Tên trạng thái",
-    dataIndex: "MailStatus",
-    sorter: true,
-    sorter: (a, b) => a.MailStatus - b.MailStatus,
-    width: 150,
-  },
-  {
-    title: "Mã VĐ KH",
-    dataIndex: "",
-    width: 200,
-  },
-  {
-    title: "VĐ chuyển hoàn",
-    dataIndex: "",
-    width: 200,
-  },
-  {
-    title: "DV",
-    dataIndex: "ServiceTypeName",
-    width: 200,
-  },
-  {
-    title: "Dịch vụ GTGT",
-    dataIndex: "ServiceTypeSpecialNote",
-    width: 200,
-  },
-  {
-    title: "Loại hình",
-    dataIndex: "MailType",
-    width: 200,
-  },
-  {
-    title: "Giá trị khai",
-    dataIndex: "DeclaredValue",
-    width: 200,
-  },
-  {
-    title: "Số lượng",
-    dataIndex: "PackageAmount",
-    width: 200,
-  },
-  {
-    title: "Giá cước",
-    dataIndex: "BasicFee",
-    width: 200,
-  },
-  {
-    title: "Cước DVGT",
-    dataIndex: "",
-    width: 200,
-  },
-  {
-    title: "% PP xăng dầu",
-    dataIndex: "",
-    width: 200,
-  },
-  {
-    title: "PP xăng dầu",
-    dataIndex: "",
-    width: 200,
-  },
-  {
-    title: "% VAT",
-    dataIndex: "",
-    width: 200,
-  },
-  {
-    title: "VAT",
-    dataIndex: "VATFee",
-    width: 200,
-  },
-  {
-    title: "Thành tiền",
-    dataIndex: "TotalFee",
-    width: 200,
-  },
-  {
-    title: "TL thực",
-    dataIndex: "MailRealWeight",
-    width: 200,
-  },
-  {
-    title: "TL",
-    dataIndex: "MailTotalWeight",
-    width: 200,
-  },
-  {
-    title: "TLQĐ",
-    dataIndex: "MailConvertedWeight",
-    width: 200,
-  },
-  {
-    title: "Dài",
-    dataIndex: "MailLength",
-    width: 200,
-  },
-  {
-    title: "Rộng",
-    dataIndex: "MailWidth",
-    width: 200,
-  },
-  {
-    title: "Cao",
-    dataIndex: "MailHeight",
-    width: 200,
-  },
-  {
-    title: "BC hiện tại",
-    dataIndex: "",
-    width: 200,
-  },
-  {
-    title: "TT",
-    dataIndex: "",
-    width: 200,
-  },
-  {
-    title: "NV nhập",
-    dataIndex: "CreatedUser",
-    width: 200,
-  },
-  {
-    title: "NVGN",
-    dataIndex: "",
-    width: 200,
-  },
-  {
-    title: "Mã điều tin",
-    dataIndex: "",
-    width: 200,
-  },
-  {
-    title: "Nội dung",
-    dataIndex: "PackageNotes",
-    width: 200,
-  },
-  {
-    title: "Ghi chú đặc biệt",
-    dataIndex: "PackageNotes",
-    width: 200,
-  },
-  {
-    title: "Bên thứ 3",
-    dataIndex: "",
-    width: 200,
-  },
-  {
-    title: "VĐ bên thứ 3",
-    dataIndex: "",
-    width: 200,
-  },
-  {
-    title: "CP/TG",
-    dataIndex: "",
-    width: 200,
-  },
-  {
-    title: "Người tạo",
-    dataIndex: "PostOfficeCreatedID",
-    width: 200,
-  },
-  {
-    title: "Ngày tạo",
-    dataIndex: "CreatedDate",
-    width: 200,
-  },
-  {
-    title: "Người sửa",
-    dataIndex: "PostOfficeCreatedID",
-    width: 200,
-  },
-  {
-    title: "Ngày sửa",
-    dataIndex: "CreatedDate",
-    width: 200,
-  },
-  {
-    title: "Mã người (gửi)",
-    dataIndex: "CustomerID",
-    width: 200,
-  },
-  {
-    title: "Đại diện (gửi)",
-    dataIndex: "CustomerRepresent",
-    width: 200,
-  },
-  {
-    title: "Họ tên (gửi)",
-    dataIndex: "CustomerName",
-    width: 200,
-  },
-  {
-    title: "Địa chỉ (gửi)",
-    dataIndex: "CustomerAddress",
-    width: 400,
-  },
-  {
-    title: "Điện thoại (gửi)",
-    dataIndex: "CustomerPhoneNumber",
-    width: 200,
-  },
-  {
-    title: "Quốc gia (gửi)",
-    dataIndex: "CustomerAddress",
-    width: 200,
-  },
-  {
-    title: "Tỉnh/Thành (gửi)",
-    dataIndex: "CustomerAddress",
-    width: 200,
-  },
-  {
-    title: "Q/Huyện (gửi)",
-    dataIndex: "CustomerAddress",
-    width: 200,
-  },
-  {
-    title: "Họ tên (nhận)",
-    dataIndex: "RecieverName",
-    width: 200,
-  },
-  {
-    title: "Địa chỉ (nhận)",
-    dataIndex: "ReceiverAddress",
-    width: 200,
-  },
-  {
-    title: "Điện thoại (nhận)",
-    dataIndex: "ReceiverPhoneNumber",
-    width: 200,
-  },
-  {
-    title: "BC phát",
-    dataIndex: "",
-    width: 200,
-  },
-  {
-    title: "TT phát",
-    dataIndex: "",
-    width: 150,
-  },
-  {
-    title: "Tuyến GN phát",
-    dataIndex: "",
-    width: 200,
-  },
-  {
-    title: "Mã địa chỉ (nhận)",
-    dataIndex: "ReceiverPostcodeQT",
-    width: 200,
-  },
-  {
-    title: "Quốc gia (nhận)",
-    dataIndex: "ReceiverNationID",
-    width: 200,
-  },
-  {
-    title: "Tỉnh/Thành (nhận)",
-    dataIndex: "ReceiverProvinceID",
-    width: 200,
-  },
-  {
-    title: "Q/Huyện (nhận)",
-    dataIndex: "ReceiverDistrictID",
-    width: 200,
-  },
-  {
-    title: "P/Xã (nhận)",
-    dataIndex: "ReceiverWardID",
-    width: 200,
-  },
-  {
-    title: "Khu phố (nhận) ",
-    dataIndex: "ReceiverAddressID",
-    width: 200,
-  },
-  {
-    title: "Địa chỉ chi tiết",
-    dataIndex: "ReceiverDetailedAddress",
-    width: 200,
-    fixed: "right",
-  },
-  {
-    title: 'operation',
-    dataIndex: 'operation',
-    render: (_, record) =>
-      dataSource.length >= 1 ? (
-        <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record.key)}>
-          <a>Delete</a>
-        </Popconfirm>
-      ) : null,
-  }
-];
-
-const data = [
-  {
-    key: "1",
-    CreatedDate: "2021-08-01",
-    MailID: "123456789",
-    MailStatus: "Đã phát",
-    ServiceTypeName: "Chuyển phát nhanh",
-  },
-  {
-    key: "2",
-    CreatedDate: "2021-08-01",
-    MailID: "123456789",
-    MailStatus: "Đã phát",
-    ServiceTypeName: "Chuyển phát nhanh",
-  },
-  {
-    key: "3",
-    CreatedDate: "2021-08-01",
-    MailID: "123456789",
-    MailStatus: "Đã phát",
-    ServiceTypeName: "Chuyển phát nhanh",
-  },
-  {
-    key: "4",
-    CreatedDate: "2021-08-01",
-    MailID: "123456789",
-    MailStatus: "Đã phát",
-    ServiceTypeName: "Chuyển phát nhanh",
-  },
-  {
-    key: "5",
-    CreatedDate: "2021-08-01",
-    MailID: "123456789",
-    MailStatus: "Đã phát",
-    ServiceTypeName: "Chuyển phát nhanh",
-  },
-  {
-    key: "6",
-    CreatedDate: "2021-08-01",
-    MailID: "123456789",
-    MailStatus: "Đã phát",
-    ServiceTypeName: "Chuyển phát nhanh",
-  },
-  {
-    key: "7",
-    CreatedDate: "2021-08-01",
-    MailID: "123456789",
-    MailStatus: "Đã phát",
-    ServiceTypeName: "Chuyển phát nhanh",
-  },
-  {
-    key: "8",
-    CreatedDate: "2021-08-01",
-    MailID: "123456789",
-    MailStatus: "Đã phát",
-    ServiceTypeName: "Chuyển phát nhanh",
-  },
-  {
-    key: "9",
-    CreatedDate: "2021-08-01",
-    MailID: "123456789",
-    MailStatus: "Đã phát",
-    ServiceTypeName: "Chuyển phát nhanh",
-  },
-];
-const getRandomuserParams = (params) => ({
-  results: params.pagination?.pageSize,
-  page: params.pagination?.current,
-  ...params,
-});
-function OrderList() {
-  const [data, setData] = useState();
-  const [loading, setLoading] = useState(false);
-  const [tableParams, setTableParams] = useState({
-    pagination: {
-      current: 1,
-      pageSize: 10,
+function OrderList({ dataSource, setDataSource }) {
+  
+  
+  // const originData = [];
+  // const [data, setData] = useState(originData);
+  // const [editingKey, setEditingKey] = useState("");
+  // const isEditing = (record) => record.key === editingKey;
+  const columns = [
+    {
+      key: "1",
+      title: "Ngày nhận",
+      dataIndex: "createdDate",
+      editable: true,
+      sorter: true,
+      // render: (name) => `${name.first} ${name.last}`,
+      width: 150,
+      fixed: "left",
     },
-  });
-  const fetchData = () => {
-    setLoading(true);
-    fetch(`https://randomuser.me/api?${qs.stringify(getRandomuserParams(tableParams))}`)
-      .then((res) => res.json())
-      .then(({ results }) => {
-        setData(results);
-        setLoading(false);
-        setTableParams({
-          ...tableParams,
-          pagination: {
-            ...tableParams.pagination,
-            total: 200,
-            // 200 is mock data, you should read it from server
-            // total: data.totalCount,
-          },
-        });
-      });
-  };
-  useEffect(() => {
-    fetchData();
-  }, [JSON.stringify(tableParams)]);
-  const handleTableChange = (pagination, filters, sorter) => {
-    setTableParams({
-      pagination,
-      filters,
-      ...sorter,
+    {
+      key: "2",
+      title: "Giờ",
+      dataIndex: "CreatedDate",
+      width: 150,
+      fixed: "left",
+    },
+    {
+      key: "3",
+      title: "Số vận đơn",
+      dataIndex: "mailID",
+      editable: true,
+      sorter: true,
+      sorter: (a, b) => a.mailID - b.mailID,
+      width: 150,
+      fixed: "left",
+    },
+    {
+      key: "4",
+      title: "Tên hàng COD",
+      dataIndex: "",
+      // sorter: true,
+      // sorter: (a, b) => a.MailID - b.MailID,
+      width: 150,
+    },
+    {
+      key: "5",
+      title: "Tên trạng thái",
+      dataIndex: "mailStatus",
+      editable: true,
+      sorter: true,
+      sorter: (a, b) => a.mailStatus - b.mailStatus,
+      width: 150,
+    },
+    {
+      key: "6",
+      title: "Mã VĐ KH",
+      dataIndex: "",
+      width: 150,
+    },
+    {
+      key: "7",
+      title: "VĐ chuyển hoàn",
+      dataIndex: "",
+      width: 150,
+    },
+    {
+      key: "8",
+      title: "DV",
+      dataIndex: "serviceTypeID",
+      width: 150,
+    },
+    {
+      key: "8",
+      title: "Tên DV",
+      dataIndex: "serviceTypeName",
+      width: 150,
+    },
+    {
+      key: "9",
+      title: "Dịch vụ GTGT",
+      dataIndex: "serviceTypeSpecialNote",
+      width: 150,
+    },
+    {
+      key: "10",
+      title: "Loại hình",
+      dataIndex: "mailType",
+      width: 150,
+    },
+    {
+      key: "11",
+      title: "Giá trị khai",
+      dataIndex: "declaredValue",
+      width: 150,
+    },
+    {
+      key: "12",
+      title: "Số lượng",
+      dataIndex: "packageAmount",
+      width: 150,
+    },
+    {
+      key: "13",
+      title: "Giá cước",
+      dataIndex: "basicFee",
+      width: 150,
+    },
+    {
+      key: "14",
+      title: "Cước DVGT",
+      dataIndex: "",
+      width: 150,
+    },
+    {
+      key: "15",
+      title: "% PP xăng dầu",
+      dataIndex: "",
+      width: 150,
+    },
+    {
+      key: "16",
+      title: "PP xăng dầu",
+      dataIndex: "fuelFee",
+      width: 150,
+    },
+    {
+      key: "17",
+      title: "% VAT",
+      dataIndex: "",
+      width: 150,
+    },
+    {
+      key: "18",
+      title: "VAT",
+      dataIndex: "vATFee",
+      width: 150,
+    },
+    {
+      key: "19",
+      title: "Thành tiền",
+      dataIndex: "totalFee",
+      width: 150,
+    },
+    {
+      key: "20",
+      title: "TL thực",
+      dataIndex: "mailRealWeight",
+      width: 150,
+    },
+    {
+      key: "21",
+      title: "TL",
+      dataIndex: "mailTotalWeight",
+      width: 150,
+    },
+    {
+      key: "22",
+      title: "TLQĐ",
+      dataIndex: "mailConvertedWeight",
+      width: 150,
+    },
+    {
+      key: "23",
+      title: "Dài",
+      dataIndex: "mailLength",
+      width: 150,
+    },
+    {
+      key: "24",
+      title: "Rộng",
+      dataIndex: "mailWidth",
+      width: 150,
+    },
+    {
+      key: "25",
+      title: "Cao",
+      dataIndex: "mailHeight",
+      width: 150,
+    },
+    {
+      key: "26",
+      title: "BC hiện tại",
+      dataIndex: "",
+      width: 150,
+    },
+    {
+      key: "27",
+      title: "TT",
+      dataIndex: "",
+      width: 150,
+    },
+    {
+      key: "28",
+      title: "NV nhập",
+      dataIndex: "CreatedUser",
+      width: 150,
+    },
+    {
+      key: "29",
+      title: "NVGN",
+      dataIndex: "",
+      width: 150,
+    },
+    {
+      key: "30",
+      title: "Mã điều tin",
+      dataIndex: "",
+      width: 150,
+    },
+    {
+      key: "31",
+      title: "Nội dung",
+      dataIndex: "packageNotes",
+      width: 150,
+    },
+    {
+      key: "32",
+      title: "Ghi chú đặc biệt",
+      dataIndex: "packageNotes",
+      width: 150,
+    },
+    {
+      key: "33",
+      title: "Bên thứ 3",
+      dataIndex: "",
+      width: 150,
+    },
+    {
+      key: "34",
+      title: "VĐ bên thứ 3",
+      dataIndex: "",
+      width: 150,
+    },
+    {
+      key: "35",
+      title: "CP/TG",
+      dataIndex: "",
+      width: 150,
+    },
+    {
+      key: "36",
+      title: "Người tạo",
+      dataIndex: "postOfficeCreatedID",
+      width: 150,
+    },
+    {
+      key: "37",
+      title: "Ngày tạo",
+      dataIndex: "createdDate",
+      width: 150,
+    },
+    {
+      key: "38",
+      title: "Người sửa",
+      dataIndex: "postOfficeCreatedID",
+      width: 150,
+    },
+    {
+      key: "39",
+      title: "Ngày sửa",
+      dataIndex: "createdDate",
+      width: 150,
+    },
+    {
+      key: "40",
+      title: "Mã người (gửi)",
+      dataIndex: "customerID",
+      width: 150,
+    },
+    {
+      key: "41",
+      title: "Đại diện (gửi)",
+      dataIndex: "customerRepresent",
+      width: 150,
+    },
+    {
+      key: "42",
+      title: "Họ tên (gửi)",
+      dataIndex: "customerName",
+      width: 150,
+    },
+    {
+      key: "43",
+      title: "Địa chỉ (gửi)",
+      dataIndex: "customerAddress",
+      width: 400,
+    },
+    {
+      key: "44",
+      title: "Điện thoại (gửi)",
+      dataIndex: "customerPhoneNumber",
+      width: 150,
+    },
+    {
+      key: "45",
+      title: "Quốc gia (gửi)",
+      dataIndex: "customerAddress",
+      width: 150,
+    },
+    {
+      key: "46",
+      title: "Tỉnh/Thành (gửi)",
+      dataIndex: "customerAddress",
+      width: 150,
+    },
+    {
+      key: "47",
+      title: "Q/Huyện (gửi)",
+      dataIndex: "customerAddress",
+      width: 150,
+    },
+    {
+      key: "48",
+      title: "Họ tên (nhận)",
+      dataIndex: "recieverName",
+      width: 150,
+    },
+    {
+      key: "49",
+      title: "Địa chỉ (nhận)",
+      dataIndex: "receiverAddress",
+      width: 150,
+    },
+    {
+      key: "50",
+      title: "Điện thoại (nhận)",
+      dataIndex: "receiverPhoneNumber",
+      width: 150,
+    },
+    {
+      key: "51",
+      title: "BC phát",
+      dataIndex: "receiverPostOfficeID",
+      width: 150,
+    },
+    {
+      key: "52",
+      title: "TT phát",
+      dataIndex: "receiverZoneID",
+      width: 150,
+    },
+    {
+      key: "53",
+      title: "Tuyến GN phát",
+      dataIndex: "receiverShippingRouteID",
+      width: 150,
+    },
+    {
+      key: "54",
+      title: "Mã địa chỉ (nhận)",
+      dataIndex: "receiverPostcodeQT",
+      width: 150,
+    },
+    {
+      key: "55",
+      title: "Quốc gia (nhận)",
+      dataIndex: "receiverNationID",
+      width: 150,
+    },
+    {
+      key: "56",
+      title: "Tỉnh/Thành (nhận)",
+      dataIndex: "receiverProvinceID",
+      width: 150,
+    },
+    {
+      key: "57",
+      title: "Q/Huyện (nhận)",
+      dataIndex: "receiverDistrictID",
+      width: 150,
+    },
+    {
+      key: "58",
+      title: "P/Xã (nhận)",
+      dataIndex: "receiverWardID",
+      width: 150,
+    },
+    {
+      key: "59",
+      title: "Khu phố (nhận) ",
+      dataIndex: "receiverAddressID",
+      width: 150,
+    },
+    {
+      key: "60",
+      title: "Địa chỉ chi tiết",
+      dataIndex: "receiverDetailedAddress",
+      width: 150,
+    },
+    // {
+    //   key: "61",
+    //   title: "Action",
+    //   dataIndex: "ReceiverDetailedAddress",
+    //   width: 150,
+    //   render: (record) => {
+    //     return (
+    //       <>
+    //         <EditOutlined
+    //           onClick={() => {
+    //             onEdit(record);
+    //           }}
+    //         />
+    //         <DeleteOutlined
+    //           onClick={() => {
+    //             onDelete(record);
+    //           }}
+    //           style={{ color: "red", marginLeft: 12 }}
+    //         />
+    //       </>
+    //     );
+    //   },
+    //   fixed: "right",
+    // },
+    {
+      key: "61",
+      title: "Actions",
+      dataIndex: "actions",
+      width: 150,
+      fixed: "right",
+      // render: (_, record) => {
+      //   const editable = isEditing(record);
+      //   return editable ? (
+      //     <span>
+      //       <Typography.Link
+      //         style={{
+      //           marginRight: 8,
+      //         }}
+      //       >
+      //         Save
+      //       </Typography.Link>
+      //       <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
+      //         <a>Cancel</a>
+      //       </Popconfirm>
+      //     </span>
+      //   ) : (
+      //     <>
+      //       <span
+      //         style={{ cursor: "pointer", marginRight: 8 }}
+      //         onClick={() => edit(record)}
+      //       >
+      //         Edit
+      //       </span>
+      //       <span
+      //         style={{ cursor: "pointer", color: "red" }}
+      //         onClick={() => onDelete(record)}
+      //       >
+      //         Delete
+      //       </span>
+      //     </>
+      //   );
+      // },
+      render: (_, record) => {
+        return (
+          <>
+          <EditOutlined
+              onClick={() => onEdit(record)}
+              style={{ cursor: "pointer", marginRight: 12 }}
+            />
+            {/* <span
+              style={{ cursor: "pointer", marginRight: 8 }}
+              onClick={() => onEdit(record)}
+            >
+              Edit
+            </span> */}
+            <DeleteOutlined
+              onClick={() => onDelete(record)}
+              style={{ cursor: "pointer", color: "red", marginLeft: 12 }}
+            />
+            {/* <span
+              style={{ cursor: "pointer", color: "red" }}
+              onClick={() => onDelete(record)}
+            >
+              Delete
+            </span> */}
+          </>
+        );
+      },
+    },
+  ];
+
+
+
+  const onDelete = async (record) => {
+    Modal.confirm({
+      title: "Bạn có chắc chắn muốn xóa?",
+      okText: "Xóa",
+      okType: "danger",
+      cancelText: "Hủy",
+      onOk: async () => {
+        const token = Cookies.get("authToken");
+        const response = await axios.delete(
+          `http://localhost:4000/mail/${record.mailID}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        console.log(response);
+        const newDataSource = dataSource.filter(
+          (item) => item.mailID !== record.mailID
+        );
+        setDataSource(newDataSource);
+      },
     });
+  };
+  
 
-    if (pagination.pageSize !== tableParams.pagination?.pageSize) {
-      setData([]);
-    }
+  // const navigate = useNavigate ();
+
+  const onEdit = (record) => {
+    Modal.confirm({
+      title: "Bạn có chắc chắn muốn cập nhật?",
+      okText: "Cập nhật",
+      cancelText: "Hủy",
+      onOk: async () => {
+          const link = `/QLBP/Capnhatdonhang/${record.mailID}`;
+          window.location.href = link; // You can also use your preferred navigation method
+      },
+    });
   };
-  const rowSelection = {
-    onChange: (selectedRowKeys, selectedRows) => {
-      console.log(
-        `selectedRowKeys: ${selectedRowKeys}`,
-        "selectedRows: ",
-        selectedRows
-      );
-    },
-    getCheckboxProps: (record) => ({
-      // Column configuration not to be checked
-      MailID: record.MailID,
-    }),
-  };
-  const [selectionType] = useState("checkbox");
+  // const EditableCell = ({
+  //   editing,
+  //   dataIndex,
+  //   title,
+  //   inputType,
+  //   record,
+  //   index,
+  //   children,
+  //   ...restProps
+  // }) => {
+  //   const inputNode = inputType === "number" ? <InputNumber /> : <Input />;
+  //   return (
+  //     <td {...restProps}>
+  //       {editing ? (
+  //         <Form.Item
+  //           name={dataIndex}
+  //           style={{
+  //             margin: 0,
+  //           }}
+  //           rules={[
+  //             {
+  //               required: true,
+  //               message: `Please Input ${title}!`,
+  //             },
+  //           ]}
+  //         >
+  //           {inputNode}
+  //         </Form.Item>
+  //       ) : (
+  //         children
+  //       )}
+  //     </td>
+  //   );
+  // };
+
+  // const edit = (record) => {
+  //   console.log("test");
+  //   form.setFieldsValue({
+  //     CreatedDate: "",
+  //     MailID: "",
+  //     MailStatus: "",
+  //     ...record,
+  //   });
+  //   setEditingKey(record.key);
+  // };
+
+  // const cancel = () => {
+  //   setEditingKey("");
+  // };
+  // const save = async (key) => {
+  //   try {
+  //     const row = await form.validateFields();
+  //     const newData = [...data];
+  //     const index = newData.findIndex((item) => key === item.key);
+  //     if (index > -1) {
+  //       const item = newData[index];
+  //       newData.splice(index, 1, {
+  //         ...item,
+  //         ...row,
+  //       });
+  //       setData(newData);
+  //       setEditingKey("");
+  //     } else {
+  //       newData.push(row);
+  //       setData(newData);
+  //       setEditingKey("");
+  //     }
+  //   } catch (errInfo) {
+  //     console.log("Validate Failed:", errInfo);
+  //   }
+  // };
+
+  // const mergedColumns = columns.map((col) => {
+  //   if (!col.editable) {
+  //     return col;
+  //   }
+  //   return {
+  //     ...col,
+  //     onCell: (record) => ({
+  //       record,
+  //       inputType: col.dataIndex === "MailID" ? "number" : "text",
+  //       dataIndex: col.dataIndex,
+  //       title: col.title,
+  //       editing: isEditing(record),
+  //     }),
+  //   };
+  // });
+
   return (
-    <Table
-      rowSelection={{
-        type: selectionType,
-        ...rowSelection,
-      }}
-      columns={columns}
-      // rowKey={(record) => record.login.uuid}
-      dataSource={data}
-      pagination={tableParams.pagination}
-      loading={loading}
-      onChange={handleTableChange}
-      size="middle"
-      scroll={{
-        x: 'calc(700px + 50%)',
-        y: 300,
-      }}
-    />
+    // <Form form={form} component={false}>
+    <Form>
+      <Table
+        // components={{
+        //   body: {
+        //     cell: EditableCell,
+        //   },
+        // }}
+        columns={columns}
+        dataSource={dataSource}
+        // rowClassName="editable-row"
+        scroll={{
+          x: 400,
+          y: 350,
+        }}
+        className="category-table-wrapper"
+      />
+    </Form>
   );
-};
+}
+
 function Category() {
+  const [dataSource, setDataSource] = useState([]);
   return (
-    <>
-      <Filter />
-      <OrderList />
-    </>
+    <div className="category-wrapper">
+      <Filter dataSource={dataSource} setDataSource={setDataSource}/>
+      <OrderList dataSource={dataSource} setDataSource={setDataSource}/>
+    </div>
   );
-};
+}
 export default Category;
