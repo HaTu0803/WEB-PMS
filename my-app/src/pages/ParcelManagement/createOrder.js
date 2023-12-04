@@ -31,6 +31,15 @@ function CreateOrder() {
       console.log("Form values:", values);
 
       const token = Cookies.get("authToken");
+
+      const tempResponse = await axios.post(`http://localhost:4000/mail/GenerateMailID/ABH`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });        
+
+      const serviceName = serviceType.find((s) => s.value === values.Service);
+
       const response = await axios.post(
         "http://localhost:4000/mail/Create",
         {
@@ -52,31 +61,31 @@ function CreateOrder() {
           ReceiverProvinceID: values.City,
           ReceiverDistrictID: values.District,
           ReceiverWardID: values.Ward,
-          ReceiverAddressID: values.Address_3,
+          ReceiverAddressID: values.AddressID,
           ReceiverPostOfficeID: values.Post_Office_Delivery,
           ReceiverShippingRouteID: values.Transmitter_Route,
           ReceiverZoneID: values.Broadcast_Area,
           MailType: values.Type,
           PackageListID: "",
           MailRealWeight: values.Actual_weight,
-          MailTotalWeight: values.Weight,
-          MailConvertedWeight: values.Conversion_weight,
+          MailTotalWeight: weight,
+          MailConvertedWeight: conversionWeight,
           MailLength: 0,
           MailWidth: 0,
           MailHeight: 0,
           PackageAmount: values.Package_Quantity,
           PackageNotes: "",
           ServiceTypeID: values.Service,
-          ServiceTypeName: values.Service,
+          ServiceTypeName: serviceName.label, // làm s chỗ này lấy name mà ko lấy id gà  
           ServiceTypeNotes: values.Notes,
           ServiceTypeSpecialNote: values.Service_Type_Notes,
           DeclaredValue: parseFloat(values.DeclaredValue) || 0,
           BasicFee: values.Rates,
           VATFee: values.VAT,
           TotalFee: values.Total,
-          PostOfficeCreatedID: "",
-          PostOfficeCreatedName: "",
-          MailID: "WEB-NTI-23-12-00013",
+          PostOfficeCreatedID: "NTI",
+          PostOfficeCreatedName: "Nguyễn Trãi",
+          MailID: tempResponse.data,
         },
         {
           headers: {
@@ -302,7 +311,7 @@ function CreateOrder() {
   };
 
   const [actualWeight, setActualWeight] = useState(0);
-  const [conversionWeight, setConversionWeight] = useState(1);
+  const [conversionWeight, setConversionWeight] = useState(0);
   const [weight, setWeight] = useState(0);
   const handleActualWeightChange = (value) => {
     setActualWeight(value);
@@ -513,7 +522,7 @@ function CreateOrder() {
             </Form.Item>
           </Col>
           <Col flex={2}>
-            <Form.Item label="Mã địa chỉ" name="">
+            <Form.Item label="Mã địa chỉ" name="AddressID">
               <Input showSearch />
             </Form.Item>
           </Col>
