@@ -349,8 +349,23 @@ const [serviceType, setServiceType] = useState([]);
   );
 }
 function OrderList({ dataSource, setDataSource }) {
-  
-  
+  const [selectionType] = useState('checkbox');
+
+  const rowSelection = {
+    onChange: (selectedRowKeys, selectedRows) => {
+      console.log(
+        `selectedRowKeys: ${selectedRowKeys}`,
+        'selectedRows: ',
+        selectedRows
+      );
+    },
+    getCheckboxProps: (record) => ({
+      // Column configuration not to be checked
+      mailID: record.mailID,
+    }),
+  };
+
+
   // const originData = [];
   // const [data, setData] = useState(originData);
   // const [editingKey, setEditingKey] = useState("");
@@ -827,11 +842,9 @@ function OrderList({ dataSource, setDataSource }) {
     },
   ];
 
-
-
   const onDelete = async (record) => {
     Modal.confirm({
-      title: "Bạn có chắc chắn muốn xóa?",
+      title: 'Bạn có chắc chắn muốn xóa đơn hàng này?' ,
       okText: "Xóa",
       okType: "danger",
       cancelText: "Hủy",
@@ -854,9 +867,6 @@ function OrderList({ dataSource, setDataSource }) {
     });
   };
   
-
-  // const navigate = useNavigate ();
-
   const onEdit = (record) => {
     Modal.confirm({
       title: "Bạn có chắc chắn muốn cập nhật?",
@@ -960,11 +970,14 @@ function OrderList({ dataSource, setDataSource }) {
     // <Form form={form} component={false}>
     <Form>
       <Table
+      
         // components={{
         //   body: {
         //     cell: EditableCell,
         //   },
         // }}
+        
+        rowSelection={{ ...rowSelection, type: selectionType }}
         columns={columns}
         dataSource={dataSource}
         // rowClassName="editable-row"
@@ -973,6 +986,12 @@ function OrderList({ dataSource, setDataSource }) {
           y: 350,
         }}
         className="category-table-wrapper"
+        pagination={{
+          total: 100,
+          showSizeChanger: true,
+          showQuickJumper: true,
+          showTotal: (total) => `Total ${total} items`,
+        }}
       />
     </Form>
   );

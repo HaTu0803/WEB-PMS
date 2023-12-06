@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext,useRef  } from "react";
 import { Typography, notification } from "antd";
 import {
   message,
@@ -10,6 +10,8 @@ import {
   InputNumber,
   Select,
   Form,
+  Popconfirm,
+  Table
 } from "antd";
 import dayjs from "dayjs";
 import { DatePicker, Space } from "antd";
@@ -18,25 +20,53 @@ import { getTodosAPI } from "../../api/todos";
 import "./createOrder.css";
 import axios from "axios";
 import Cookies from "js-cookie";
-
+import { useNavigate } from "react-router-dom";
 // import Theme from '../../themes/theme';
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
 function CreateOrder() {
   const [form] = Form.useForm();
+  const navigation = useNavigate();
+  const [modal, contextHolder] = Modal.useModal();
+
+  const countDown = () => {
+    let secondsToGo = 5;
+    const instance = modal.success({
+      title: "TẠO ĐƠN THÀNH CÔNG",
+      content: `Đơn hàng đã được tạo thành công. Đang chuyển hướng về trang DANH MỤC trong vòng ${secondsToGo} giây`,
+    });
+    const timer = setInterval(() => {
+      secondsToGo -= 1;
+      instance.update({
+        content: `Đơn hàng đã được tạo thành công. Đang chuyển hướng về trang DANH MỤC trong vòng ${secondsToGo} giây`,
+      });
+    }, 1000);
+    setTimeout(() => {
+      clearInterval(timer);
+      instance.destroy();
+      navigation("/QLBP/Danhmuc");
+    }, secondsToGo * 1000);
+  };
+
   const handleFormFinish = async () => {
+   
+
     try {
       const values = await form.validateFields();
       console.log("Form values:", values);
 
       const token = Cookies.get("authToken");
 
-      const tempResponse = await axios.post(`http://localhost:4000/mail/GenerateMailID/ABH`, {}, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });        
+      const tempResponse = await axios.post(
+        `http://localhost:4000/mail/GenerateMailID/ABH`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       const serviceName = serviceType.find((s) => s.value === values.Service);
 
@@ -49,7 +79,7 @@ function CreateOrder() {
           CustomerPhoneNumber: customerInfo.phoneNumber,
           CustomerPackageID: "",
           CustomerCompanyName: "",
-          CustomerRepresent: "",
+          CustomerRepresent: values.Send,
           CustomerAddress: customerInfo.address,
           ReceiverPhoneNumber: values.Phone_Number_2,
           RecieverName: values.Receiver_Name,
@@ -76,13 +106,14 @@ function CreateOrder() {
           PackageAmount: values.Package_Quantity,
           PackageNotes: "",
           ServiceTypeID: values.Service,
-          ServiceTypeName: serviceName.label, // làm s chỗ này lấy name mà ko lấy id gà  
+          ServiceTypeName: serviceName.label,
           ServiceTypeNotes: values.Notes,
           ServiceTypeSpecialNote: values.Service_Type_Notes,
-          DeclaredValue: parseFloat(values.DeclaredValue) || 0,
+          DeclaredValue: values.DeclaredValue,
           BasicFee: values.Rates,
           VATFee: values.VAT,
           TotalFee: values.Total,
+          FuelFee: values.Sender,
           PostOfficeCreatedID: "NTI",
           PostOfficeCreatedName: "Nguyễn Trãi",
           MailID: tempResponse.data,
@@ -100,6 +131,22 @@ function CreateOrder() {
     } catch (errorInfo) {
       console.error("Form validation failed:", errorInfo);
       // You can handle the validation error here, e.g., display error messages.
+    }
+    try {
+      const createOrderSuccess = true;
+
+      if (createOrderSuccess) {
+        // Hiển thị modal ở đây
+        countDown();
+        // Sau khi người dùng nhấn OK trong modal, chuyển hướng đến trang /QLBP/Danhmuc
+      } else {
+        modal.error({
+          title: "TẠO ĐƠN THẤT BẠI",
+          content: "Đơn hàng chưa được tạo thành công",
+        });
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
   const [country, setCountry] = useState([]);
@@ -186,6 +233,13 @@ function CreateOrder() {
     setWard(options);
   };
 
+  const [broadcastInfo, setBroadcastInfo] = useState({
+    Post_Office_Delivery: '',
+    Transmitter_Route: '',
+    Broadcast_Area: '',
+  });
+
+
   const Notes = [
     {
       value: "Xemhang",
@@ -210,6 +264,21 @@ function CreateOrder() {
   useEffect(() => {
     const fetchCustomer = async () => {
       const token = Cookies.get("authToken");
+      // const response = await axios.post(
+      //   "http://localhost:4000/postoffice/GetCustomer/ABH",
+      //   {},
+      //   {
+      //     headers: {
+      //       Authorization: `Bearer ${token}`,
+      //     },
+      //   }
+      // );
+      // const options = response.data.map((d) => ({
+      //   value: d.customerID,
+      //   label: d.customerName,
+      //   address: d.address,
+      //   phoneNumber: d.phoneNumber,
+      // }));
       const response = await axios.post(
         "http://localhost:4000/postoffice/GetCustomer/ABH",
         {},
@@ -268,25 +337,17 @@ function CreateOrder() {
     };
     fetchServiceType();
   }, []);
+//  check loại hình và kiện
 
-  // const handleFormFinish = (values) => {
-  //   if ((values.Type === "TL" || values.Type === "HH") && values.Service) {
-  //     notification.warning({
-  //       message: "Thông báo",
-  //       description: "Vui lòng chọn dịch vụ",
-  //     });
-  //   }
-  // };
-  const roundToThreeDecimals = (value) => Math.round(value * 1000) / 1000;
 
-  const onRoundToThreeDecimals = (value) => {
-    console.log("changed", value);
-  };
+  
 
-  const [declaredValue, setDeclaredValue] = useState("");
+  // const [declaredValue, setDeclaredValue] = useState("");
   const [rates, setRates] = useState(50000);
   const [sender, setSender] = useState(10000);
-  const [sendingRepresentative, setSendingRepresentative] = useState(4000);
+  const [sendingRepresentative, setSendingRepresentative] = useState(
+    rates * 0.08
+  );
   const [total, setTotal] = useState(0);
 
   const calculateTotal = () => {
@@ -331,6 +392,391 @@ function CreateOrder() {
     }
   };
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+  const navigate = useNavigate();
+
+  // -----------TẠO KIỆN-----------
+ 
+
+  const handleDelete = (key) => {
+    const newData = dataSourcePackage.filter((item) => item.key !== key);
+    setDataSourcePackage(newData);
+  };
+  const defaultColumns = [
+    {
+      title: 'STT',
+      dataIndex: 'STT',
+      // width: '30%',
+      key: 'STT',
+    },
+    {
+      title: 'Mã kiện',
+      dataIndex: 'PackageID',
+      key: 'PackageID',
+                editable: true,
+
+    },
+    {
+      title: 'TL thực',
+      dataIndex: 'PackageRealWeight',
+      key: 'PackageRealWeight',
+      editable: true,
+
+    },
+    {
+      title: 'Kích thước (cm)',
+      children: [
+        {
+          title: 'Dài',
+          dataIndex: 'PackageLength',
+          key: 'PackageLength',
+          editable: true,
+
+          width: 150,
+        },
+        {
+          title: 'Rộng',
+
+          dataIndex: 'PackageWeight',
+          key: 'PackageWeight',
+          editable: true,
+
+          width: 150,
+        },
+        {
+          title: 'Cao',
+
+          dataIndex: 'PackageHeight',
+          key: 'PackageHeight',
+          editable: true,
+
+          width: 100,
+        },
+
+        ,
+      ],
+    },
+    {
+      title: 'TL',
+      dataIndex: 'PackageTotalWight',
+      key: 'PackageTotalWight',
+    },
+    {
+      title: 'TLQĐ',
+      dataIndex: 'PackageConvertedWeight',
+      key: 'PackageConvertedWeight',
+    },
+    {
+      title: 'Ghi chú',
+      dataIndex: 'PackageNotes',
+      key: 'PackageNotes',
+    },
+    {
+      title: 'operation',
+      dataIndex: 'operation',
+      render: (_, record) =>
+      dataSourcePackage.length >= 1 ? (
+          <Popconfirm
+            title="Sure to delete?"
+            onConfirm={() => handleDelete(record.key)}
+          >
+            <a>Delete</a>
+          </Popconfirm>
+        ) : null,
+    },
+  ];
+  const [packageQuantity, setPackageQuantity] = useState(0);
+ const applyChanges = () => {
+  if (packageQuantity < 2) {
+    // Display an error message or handle the situation accordingly
+    console.error("Package quantity should be at least 2");
+    // You might want to return or stop further execution here
+    return;
+  }
+
+    const newData = [];
+    for (let i = 0; i < packageQuantity; i++) {
+      const newPackage = {
+        key: i,
+        STT: i + 1,
+        PackageID: "",
+        PackageRealWeight: "",
+        PackageLength: "",
+        PackageWeight: "",
+        PackageHeight: "",
+        PackageTotalWight: "",
+        PackageConvertedWeight: "",
+        PackageNotes: "",
+      };
+      newData.push(newPackage);
+      
+    }
+
+    setDataSourcePackage(newData);
+  };
+const [mailLength, setMailLength] = useState(0);
+const [mailWidth, setMailWidth] = useState(0);
+const [mailHeight, setMailHeight] = useState(0);
+const handleApplyAll = () => {
+  const newData = [...dataSourcePackage];
+  for (let i = 0; i < packageQuantity; i++) {
+    const item = newData[i];
+    newData.splice(i, 1, {
+      ...item,
+      PackageLength: mailLength,
+      PackageRealWeight: actualWeight,
+      PackageWeight: mailWidth,
+      PackageHeight: mailHeight,
+    });
+  }
+  console.log(newData);
+  setDataSourcePackage(newData);
+};
+
+
+
+  const symbols = [
+    {
+      value: " ",
+      label: " ",
+    },
+    {
+      value: "-",
+      label: "-",
+    },
+    {
+      value: "/",
+      label: "/",
+    },
+    
+  ];
+ 
+
+    
+  const [dataSourcePackage, setDataSourcePackage] = useState([
+    {
+      key: '',
+      STT: ' ',
+      PackageID: ' ',
+      PackageRealWeight:  ' ',
+      PackageLength:  ' ',
+      PackageWeight:  ' ',
+      PackageHeight:  ' ',
+      PackageTotalWight:  ' ',
+      PackageConvertedWeight:  ' ',
+      PackageNotes:  ' ',
+    },
+  ]);
+
+  const calculateConversionWeight = (values) => {
+    let serviceType = 0;
+    let weight = 0;
+    let conversionWeight = 0;
+    if (values.ServiceTypeID === "DE" || values.ServiceTypeID === "ED") {
+
+      serviceType = 6000;
+
+    } else if (values.ServiceTypeID === "IM" || values.ServiceTypeID === "IE") {
+      serviceType = 10000;
+      conversionWeight = (values.MailLength * values.MailWidth * values.MailHeight*3) / serviceType;
+      return conversionWeight.toFixed(3);
+    } else {
+      serviceType = 5000;
+    }
+    conversionWeight = (values.MailLength * values.MailWidth * values.MailHeight) / serviceType;
+    return conversionWeight.toFixed(3);
+  };
+  const handleServiceChange = (value) => {
+    // Assuming form is your form reference
+    const values = form.getFieldsValue();
+    values.ServiceTypeID = value;
+  
+    // Call the function and set the result to your form field
+    const convertedWeight = calculateConversionWeight(values);
+    form.setFieldsValue({
+      ConvertedWeight: convertedWeight,
+    });
+  };
+
+ 
+  // const handleAdd = async () => {
+  //   const values = await form.validateFields();
+  //   console.log("Form values:", values);
+
+  //   const token = Cookies.get("authToken");
+  //       const response = await axios.post(
+  //         `http://localhost:4000/mail/GeneratePackageID`,
+  //         {
+  //           MailID: values.mailID,
+  //           PackageAmount: values.packageAmount,
+  //           SeperateSymbol: values.seperateSymbol,
+  //         },
+
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${token}`,
+  //           },
+  //         }
+  //       );
+
+  //       console.log(response);
+       
+  // }
+
+    
+
+  const EditableContext = React.createContext(null);
+  const EditableRow = ({ index, ...props }) => {
+    const [form] = Form.useForm();
+    return (
+      <Form form={form} component={false}>
+        <EditableContext.Provider value={form}>
+          <tr {...props} />
+        </EditableContext.Provider>
+      </Form>
+    );
+  };
+    
+  const EditableCell = ({
+    title,
+    editable,
+    children,
+    dataIndex,
+    record,
+    handleSave,
+    ...restProps
+  }) => {
+    const [editing, setEditing] = useState(false);
+    const inputRef = useRef(null);
+    const form = useContext(EditableContext);
+    useEffect(() => {
+      if (editing) {
+        inputRef.current.focus();
+      }
+    }, [editing]);
+    const toggleEdit = () => {
+      setEditing(!editing);
+      form.setFieldsValue({
+        [dataIndex]: record[dataIndex],
+      });
+    };
+    const save = async () => {
+      try {
+        const values = await form.validateFields();
+        toggleEdit();
+        handleSave({
+          ...record,
+          ...values,
+        });
+      } catch (errInfo) {
+        console.log('Save failed:', errInfo);
+      }
+    };
+    let childNode = children;
+    if (editable) {
+      childNode = editing ? (
+        <Form.Item
+          style={{
+            margin: 0,
+          }}
+          name={dataIndex}
+          rules={[
+            {
+              required: true,
+              message: `${title} is required.`,
+            },
+          ]}
+        >
+          <Input ref={inputRef} onPressEnter={save} onBlur={save} />
+        </Form.Item>
+      ) : (
+        <div
+          className="editable-cell-value-wrap"
+          style={{
+            paddingRight: 24,
+          }}
+          onClick={toggleEdit}
+        >
+          {children}
+        </div>
+      );
+    }
+    return <td {...restProps}>{childNode}</td>;
+  };
+  const [count, setCount] = useState(2);
+  const handleAdd = () => {
+    const newData = {
+      key: dataSourcePackage.length,
+      STT: dataSourcePackage.length + 1,
+      PackageID: "",
+      PackageRealWeight: "",
+      PackageLength: "",
+      PackageWeight: "",
+      PackageHeight: "",
+      PackageTotalWight: "",
+      PackageConvertedWeight: "",
+      PackageNotes: "",
+    };
+    setDataSourcePackage([...dataSourcePackage, newData]);
+    setCount(count + 1);
+  }
+  const handleSave = (row) => {
+    const newData = [...dataSourcePackage];
+    const index = newData.findIndex((item) => row.key === item.key);
+    const item = newData[index];
+    newData.splice(index, 1, { ...item, ...row });
+    setDataSourcePackage(newData);
+  };
+  const components = {
+    body: {
+      row: EditableRow,
+      cell: EditableCell,
+    },
+  };
+  const columns = defaultColumns.map((col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+
+        dataIndex: col.dataIndex,
+        title: col.title,
+        editing: col.editable,
+        handleSave: handleSave,
+      }),
+    };
+  }
+  );
+  const [selectType, setSelectType] = useState('');
+  const handleTypeChange = (value) => {
+    setSelectType(value);
+    const serviceValue = form.getFieldValue("Service");
+    if (!serviceValue) {
+      // Show error modal
+      Modal.error({
+        title: 'Error',
+        content: 'Hãy nhận dịch vụ trước khi chọn loại hình',
+      });
+
+      // Reset the selected type
+      setSelectedType('');
+    }
+
+  };
+
+
   return (
     <div className="Frome_create">
       <Typography.Title style={{ fontWeight: "bold", fontSize: "medium" }}>
@@ -342,8 +788,12 @@ function CreateOrder() {
 
       <Form form={form}>
         <Row gutter={24}>
-          <Col span={6} flex={6} >
-            <Form.Item label="Mã khách hàng" name="customerId" className="min-width-110">
+          <Col span={6} flex={6}>
+            <Form.Item
+              label="Mã khách hàng"
+              name="customerId"
+              className="min-width-110"
+            >
               <Select
                 showSearch
                 placeholder=""
@@ -369,7 +819,7 @@ function CreateOrder() {
             </Form.Item>
           </Col>
           <Col span={6} order={3}>
-            <Form.Item label="Người gửi" name="Sender">
+            <Form.Item label="Người gửi" name="Send">
               <Input />
             </Form.Item>
           </Col>
@@ -380,8 +830,12 @@ function CreateOrder() {
           </Col>
         </Row>
         <Row gutter={24}>
-          <Col flex={15} >
-            <Form.Item label="Tên công ty" name="Company_name" className="min-width-110">
+          <Col flex={15}>
+            <Form.Item
+              label="Tên công ty"
+              name="Company_name"
+              className="min-width-110"
+            >
               <Input
                 placeholder=""
                 optionFilterProp="children"
@@ -401,8 +855,12 @@ function CreateOrder() {
           </Col>
         </Row>
         <Row span={24}>
-          <Col span={24} >
-            <Form.Item label="Địa chỉ KH" name="Address_1" className="min-width-110">
+          <Col span={24}>
+            <Form.Item
+              label="Địa chỉ KH"
+              name="Address_1"
+              className="min-width-110"
+            >
               <Input value={customerInfo.address} />
               &nbsp;
             </Form.Item>
@@ -415,12 +873,17 @@ function CreateOrder() {
         </Typography.Title>
         <Row gutter={24}>
           <Col flex={2}>
-            <Form.Item label="Số điện thoại" name="Phone_Number_2" className="min-width-110" rules={[
-              {
-                pattern: /^[0-9]+$/,
-                message: 'Vui lòng chỉ nhập số.',
-              },
-            ]}>
+            <Form.Item
+              label="Số điện thoại"
+              name="Phone_Number_2"
+              className="min-width-110"
+              rules={[
+                {
+                  pattern: /^[0-9]+$/,
+                  message: "Vui lòng chỉ nhập số.",
+                },
+              ]}
+            >
               <Input showSearch />
             </Form.Item>
           </Col>
@@ -437,7 +900,11 @@ function CreateOrder() {
         </Row>
         <Row>
           <Col span={24}>
-            <Form.Item label="Địa chỉ NN" name="Address_2" className="min-width-110">
+            <Form.Item
+              label="Địa chỉ NN"
+              name="Address_2"
+              className="min-width-110"
+            >
               <Input showSearch />
             </Form.Item>
           </Col>
@@ -505,7 +972,8 @@ function CreateOrder() {
                   const value = option.value || "";
                   return value.toLowerCase().includes(input.toLowerCase());
                 }}
-              >
+                // onChange={handleWardChange} 
+                >
                 {ward.map((opt) => (
                   <Option key={opt.value} value={opt.value}>
                     {opt.label}
@@ -517,7 +985,11 @@ function CreateOrder() {
         </Row>
         <Row gutter={24}>
           <Col flex={4}>
-            <Form.Item label="Địa chỉ chi tiết" name="Address_3" className="min-width-110">
+            <Form.Item
+              label="Địa chỉ chi tiết"
+              name="Address_3"
+              className="min-width-110"
+            >
               <Input />
             </Form.Item>
           </Col>
@@ -532,20 +1004,28 @@ function CreateOrder() {
             </Form.Item>
           </Col>
         </Row>
-        <Row gutter={24}>
+        <Row gutter={24}
+        on
+        >
           <Col span={6} order={1}>
-            <Form.Item label="BC phát" name="Post_Office_Delivery" className="min-width-110">
-              <Input />
-            </Form.Item>
+            <Form.Item
+              label="BC phát"
+              name="Post_Office_Delivery"
+              className="min-width-110"
+              
+              
+            >
+ <Input value={broadcastInfo.Post_Office_Delivery} />
+             </Form.Item>
           </Col>
           <Col span={6} order={2}>
             <Form.Item label="Tuyến GN phát" name="Transmitter_Route">
-              <Input />
+              <Input value={broadcastInfo.Transmitter_Route} />
             </Form.Item>
           </Col>
           <Col span={6} order={3}>
             <Form.Item label="Vùng phát" name="Broadcast_Area">
-              <Input />
+              <Input value={broadcastInfo.Broadcast_Area} />
             </Form.Item>
           </Col>
           <Col span={6} order={4}></Col>
@@ -575,6 +1055,7 @@ function CreateOrder() {
                   const value = option.value || "";
                   return value.toLowerCase().includes(input.toLowerCase());
                 }}
+                onChange={handleTypeChange}
               >
                 onChange={(value) => setSelectedType(value)}
                 {LH.map((LH) => (
@@ -585,6 +1066,7 @@ function CreateOrder() {
               </Select>
             </Form.Item>
           </Col>
+         
           <Col flex={4}>
             <Form.Item label="TL thực" name="Actual_weight">
               <InputNumber
@@ -610,16 +1092,31 @@ function CreateOrder() {
             </Form.Item>
           </Col>
           <Col flex={2}>
-            <Form.Item label="TL" name="Weight" type="dashed">
+            <Form.Item label="TL" name="Weight" type="dashed"
+            rules={[
+            {
+              validator: (_, value) => {
+                // Check if Type is TL and if Weight is less than or equal to 2
+                if (form.getFieldValue("Type") === "TL" && value > 2) {
+                  return Promise.reject("TL type should have Weight less than or equal to 2");
+                }
+                return Promise.resolve();
+              },
+            },
+          ]}
+          
+            >
               <InputNumber
                 type="dashed"
                 style={{ color: "red" }}
                 defaultValue={1}
                 min={0}
-                max={100}
+                max={form.getFieldValue("Type") === "TL" ? 2 : 100}
                 step={0.001}
                 value={weight}
                 readOnly
+               
+
               />
               &nbsp;
             </Form.Item>
@@ -637,7 +1134,145 @@ function CreateOrder() {
           </Col>
           <Col flex={2}>
             <Form.Item name="Package_Quantity_button">
-              <Button type="primary">Tạo kiện</Button>
+              <Button type="primary" onClick={showModal}>
+                Tạo kiện
+              </Button>
+              {/* ----------------------NHẬP KIỆN------------ */}
+              <Modal
+                title="Tạo kiện"
+                open={isModalOpen}
+                onOk={handleOk}
+                onCancel={handleCancel}
+                width={1000}
+
+              >
+               
+                <Form>
+                <Row gutter={24}>
+                <Col span={8}>
+                  <Form.Item label="Số kiện" name="Package_Quantity"  rules={[
+                {
+                  pattern: /^(?:[2-9]|[1-9][0-9]+)$/,
+                  message: "Chỉ nhập số nguyên dương lớn hơn 2",
+                },
+              ]}>
+                    <Input 
+                    min={0} 
+                    max={100} 
+                    defaultValue={0}
+                    onChange={(e) => setPackageQuantity(e.target.value)}
+                    />
+                  </Form.Item>
+                  </Col>
+                 
+                  <Col span={8}>
+                  <Form.Item label="Chọn ký hiệu" name="Symbol">
+                  
+              <Select
+                showSearch
+                placeholder=""
+                optionFilterProp="children"
+                filterOption={(input, option) => {
+                  const value = option.value || "";
+                  return value.toLowerCase().includes(input.toLowerCase());
+                }}
+              >
+                {symbols.map((symbols) => (
+                  <Option key={symbols.value} value={symbols.value}>
+                    {symbols.label}
+                  </Option>
+                ))}
+              </Select>
+            
+                  </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Button type="primary" htmlType="submit"   onClick={() => applyChanges()}
+>
+                      Áp dụng
+                    </Button>
+                    </Col>
+                  </Row>
+                  <Row gutter={24}>
+                <Col span={4}>
+                  <Form.Item name="Actual_weight"  rules={[
+                {
+                  pattern: /^(?:[1-9]\d*|0)(?:\.\d+)?$/,
+                  message: "Chỉ nhập số lớn hơn 0",
+                },
+              ]}>
+                    <Input placeholder="TL thực (kg)" min={0} max={100}  
+                    onChange={(e) => setActualWeight(e.target.value)}/>
+                   
+                  </Form.Item>
+                  </Col>
+                  <Col span={4}>
+                  <Form.Item name="mail_length"  rules={[
+                {
+                  pattern: /^(?:[1-9]\d*|0)(?:\.\d+)?$/,
+                  message: "Chỉ nhập số lớn hơn 0",
+                },
+              ]}>
+                    <Input placeholder="Dài (cm)" min={0} max={100} 
+                    onChang={(e) => setMailLength(e.target.value)}
+                    />
+                   
+                  </Form.Item>
+                    </Col>
+                    <Col span={4}>
+                  <Form.Item name="mail_width"  rules={[
+                {
+                  pattern: /^(?:[1-9]\d*|0)(?:\.\d+)?$/,
+                  message: "Chỉ nhập số lớn hơn 0",
+                },
+              ]}>
+                    <Input placeholder="Rộng (cm)" min={0} max={100}
+                      onChange={(e) => setMailWidth(e.target.value)}
+                      />
+                   
+                  </Form.Item>
+                    </Col>
+                    <Col span={4}>
+                  <Form.Item name="mail_height"  rules={[
+                {
+                  pattern: /^(?:[1-9]\d*|0)(?:\.\d+)?$/,
+                  message: "Chỉ nhập số lớn hơn 0",
+                },
+              ]}>
+                    <Input placeholder="Cao (cm)" min={0} max={100}
+                    onChange={(e) => setMailHeight(e.target.value)}
+                    />
+                   
+                  </Form.Item>
+                    </Col>
+                  <Col span={4}>
+                    <Button type="primary" htmlType="submit" onClick={handleApplyAll}>
+                      Áp dụng cho tất cả các kiện
+                    </Button>
+                    </Col>
+                  </Row>
+                  <Table
+                    components={components}
+                    rowClassName={() => 'editable-row'}
+                    bordered
+                    dataSource={dataSourcePackage}
+                    columns={columns}
+                  />
+                  <Row gutter={24}>
+                  <Col span={8}>
+                  <Form.Item label="Tổng TL (kg)" name="Total_weight">
+                    <Input placeholder="" min={0} max={100} disabled/>
+                  </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                  <Form.Item label="Tổng TLQĐ (kg)" name="Total_conversion_weight">
+                    <Input placeholder="" min={0} max={100} disabled/>
+                  </Form.Item>
+                  </Col>
+                 </Row>
+
+                </Form>
+              </Modal>
             </Form.Item>
           </Col>
         </Row>
@@ -645,10 +1280,10 @@ function CreateOrder() {
         <Typography.Title style={{ fontSize: "smaller", color: "red" }}>
           Thông tin dịch vụ
         </Typography.Title>
-        <Row gutter={24} 
-           
-      justify="space-between"  // Set justify to space-between
-      align="flex-start"     
+        <Row
+          gutter={24}
+          justify="space-between" // Set justify to space-between
+          align="flex-start"
         >
           <Col span={6} order={1}>
             <Form.Item
@@ -684,21 +1319,17 @@ function CreateOrder() {
             </Form.Item>
           </Col>
           <Col span={6} order={3}>
-            <Form.Item 
-            label="Giá trị khai" 
-            name="DeclaredValue"
-            rules={[
-              {
-                pattern: /^[0-9]+$/,
-                message: 'Vui lòng chỉ nhập số.',
-              },
-            ]}
-            
+            <Form.Item
+              label="Giá trị khai"
+              name="DeclaredValue"
+              rules={[
+                {
+                  pattern: /^[0-9]+$/,
+                  message: "Vui lòng chỉ nhập số.",
+                },
+              ]}
             >
-              <Input
-                showSearch
-               
-              />
+              <Input showSearch />
             </Form.Item>
           </Col>
           <Col span={6} order={4}></Col>
@@ -737,12 +1368,17 @@ function CreateOrder() {
             borderBottom: "1px solid black",
           }}
         ></span>
+        <Form form={form}>
         <Typography.Title style={{ fontSize: "smaller", color: "red" }}>
           Giá cước
         </Typography.Title>
         <Row gutter={24}>
           <Col span={6} order={1}>
-            <Form.Item label="DVGT/COD" name="Sending_representative" className="min-width-110">
+            <Form.Item
+              label="DVGT/COD"
+              name="Sending_representative"
+              className="min-width-110"
+            >
               <Input showSearch />
             </Form.Item>
           </Col>
@@ -758,15 +1394,31 @@ function CreateOrder() {
           </Col>
           <Col span={6} order={4}></Col>
         </Row>
+
         <Row gutter={24}>
+
           <Col span={6} order={1}>
-            <Form.Item label="Giá cước" name="Rates" className="min-width-110">
-              <Input
-                onChange={(e) => setRates(e.target.value)}
-                value={rates}
-                style={{ color: "red" }}
-                readOnly
-              />
+            <Form.Item 
+            label="Giá cước" 
+            name="Rates" 
+            className="min-width-110"
+            // visible={
+            //   !!form.getFieldValue("Service") &&
+            //   !!form.getFieldValue("Type") &&
+            //   !!form.getFieldValue("Weight") &&
+            //   !!form.getFieldValue("DeclaredValue")
+              
+            // }           
+             >
+
+                 <Input
+                 onChange={(e) => setRates(e.target.value)}
+                 value={rates}
+                 style={{ color: "red" }}
+                 readOnly
+               />
+               
+
               &nbsp;
             </Form.Item>
           </Col>
@@ -781,7 +1433,6 @@ function CreateOrder() {
                 style={{ color: "red" }}
                 onChange={(e) => setSender(e.target.value)}
                 value={sender}
-                readOnly
               />
               &nbsp;
             </Form.Item>
@@ -809,7 +1460,6 @@ function CreateOrder() {
                 style={{ color: "red" }}
                 onChange={(e) => setSendingRepresentative(e.target.value)}
                 value={sendingRepresentative}
-                readOnly
               />
               &nbsp;
             </Form.Item>
@@ -828,8 +1478,8 @@ function CreateOrder() {
             </Form.Item>
           </Col>
           <Col span={6} order={2}>
-            <Form.Item label="Thành tiền" name="Tolal">
-              <Input style={{ color: "red" }} value={total} readOnly />
+            <Form.Item label="Thành tiền" name="Total">
+              <Input style={{ color: "red" }} value={total} />
               &nbsp;
             </Form.Item>
           </Col>
@@ -839,7 +1489,10 @@ function CreateOrder() {
             Tạo đơn
           </Button>
         </Form.Item>
+        </Form>
+
       </Form>
+      {contextHolder}
     </div>
   );
 }
