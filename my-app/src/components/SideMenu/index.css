@@ -1,9 +1,32 @@
 /* Sider */
 .sider-style {
-  height: 150vh;
+  width: 256px;
+  min-height: 100vh;
+  box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.05);
   background-color: var(--bg-white);
 }
 
 .flex-row{
   flex-direction: row;
 }
+
+:where(.css-dev-only-do-not-override-18iikkb).ant-menu-light .ant-menu-item-selected{
+  background-color: var(--primary-color);
+}
+
+:where(.css-dev-only-do-not-override-18iikkb).ant-menu-light .ant-menu-item-selected{
+  color: var(--bg-white);
+}
+
+:where(.css-dev-only-do-not-override-18iikkb).ant-menu .ant-menu-item .ant-menu-item-icon{
+  font-size: var(--text-lg);
+
+}
+:where(.css-dev-only-do-not-override-18iikkb).ant-menu{
+  font-size: var(--text-base);
+}
+
+:where(.css-dev-only-do-not-override-18iikkb).ant-menu-light .ant-menu-submenu-selected >.ant-menu-submenu-title{
+  color: var(--primary-color);
+}
+

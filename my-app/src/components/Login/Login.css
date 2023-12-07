@@ -10,3 +10,17 @@
   .Form {
     max-width: 600px;
   }
+
+  .login-form{
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    padding: 32px;
+    box-shadow: 0 0 10px 0 rgba(0,0,0,0.1);
+  }
+
+  .login-form :where(.css-dev-only-do-not-override-18iikkb).ant-form-item:last-child{
+    margin-bottom: 0px;
+  }

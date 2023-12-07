@@ -18,7 +18,7 @@ const Login = () => {
       .then((response) => {
         // sau nay co sua gi khi dang nhap loi thi tinh h chi tinh login dung
         Cookies.set('authToken', response.data.token, { expires: 1 })
-        window.location.href = '/dashboard'
+        window.location.href = '/home/dashboard'
 
           //   message.error('Tên đăng nhập, mật khẩu hoặc bưu cục không đúng.');
       })
@@ -34,15 +34,13 @@ const Login = () => {
 
   return (
     <Form
+    className='login-form'
       name="basic"
       labelCol={{
-        span: 8,
+        span: 6,
       }}
       wrapperCol={{
-        span: 16,
-      }}
-      style={{
-        maxWidth: 600,
+        span: 18,
       }}
       initialValues={{
         remember: true,

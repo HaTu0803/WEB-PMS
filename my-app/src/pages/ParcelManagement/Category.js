@@ -74,20 +74,23 @@ const handleFormFinish = (data) => {
 
 const [tempStartDate, setTempStartDate] = useState('');
   const [tempEndDate, setTempEndDate] = useState('');
-
+  const [tempCustomerID, setTempCustomerID] = useState('');
+  const [tempStatus, setTempStatus] = useState('');
   useEffect(() => {
     const startDate = watch('startDate');
     const endDate = watch('endDate');
+    const customerID = watch('customerId');
 
+    const status = watch('status');
     console.log('startDate:', startDate);
     console.log('endDate:', endDate);
     console.log('tempStartDate:', tempStartDate);
     console.log('tempEndDate:', tempEndDate);
 
-    if (startDate !== '' && endDate !== '' && (startDate !== tempStartDate || endDate !== tempEndDate)) {
+    if (startDate !== '' && endDate !== '' && customerID != '' && (startDate !== tempStartDate || endDate !== tempEndDate || customerID !== tempCustomerID)) {
       setTempStartDate(startDate);
       setTempEndDate(endDate);
-
+      setTempCustomerID(customerID);
       const fetchDataSources = async () => {
         const token = Cookies.get('authToken');
         const response = await axios.post(
@@ -95,9 +98,9 @@ const [tempStartDate, setTempStartDate] = useState('');
           {
             FromDate: startDate, // Use startDate directly
             ToDate: endDate,     // Use endDate directly
-            MailStatus: '',
+            MailStatus: '' ,
             serviceTypeID: '',
-            CustomerID: '',
+            CustomerID: customerID || '', // Set customerID if available, otherwise use an empty string
           },
           {
             headers: {
@@ -277,7 +280,7 @@ const [serviceType, setServiceType] = useState([]);
             </Form.Item>
           </Col>
           <Col flex={4} >
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" style={{width:'100%'}}>
                 Lấy dữ liệu
               </Button>
             </Col>
@@ -873,7 +876,7 @@ function OrderList({ dataSource, setDataSource }) {
       okText: "Cập nhật",
       cancelText: "Hủy",
       onOk: async () => {
-          const link = `/QLBP/Capnhatdonhang/${record.mailID}`;
+          const link = `/home/QLBP/Capnhatdonhang/${record.mailID}`;
           window.location.href = link; // You can also use your preferred navigation method
       },
     });
@@ -981,6 +984,7 @@ function OrderList({ dataSource, setDataSource }) {
         columns={columns}
         dataSource={dataSource}
         // rowClassName="editable-row"
+        bordered
         scroll={{
           x: 400,
           y: 350,

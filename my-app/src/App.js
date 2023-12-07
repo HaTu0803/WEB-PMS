@@ -1,23 +1,26 @@
-import Header from "./components/Header/index";
-import SideMenu from "./components/SideMenu/index";
-import Content from "./components/Content/index";
-import Footer from "./components/Footer/index";
-
 import "./App.css";
+import "./index.css";
 
-import { theme, Space, Layout } from "antd";
+import { Routes, Route, Navigate } from "react-router-dom";
+import MainLayout from "./layout/MainLayout";
+import Dashboard from "./pages/Dashboard";
+import Category from "./pages/ParcelManagement/Category";
+import CreateOrder from "./pages/ParcelManagement/createOrder";
+import EditOrder from "./pages/ParcelManagement/editOrder";
+import Login from "./components/Login";
 
 function App() {
   return (
-    <div>
-      <Layout className="flex-row">
-        <SideMenu> </SideMenu>
-        <Layout>
-          <Header></Header>
-          <Content></Content>
-        </Layout>
-      </Layout>
-    </div>
+    <Routes>
+      <Route path="/" element={<Login />} />
+      <Route path="/home" element={<MainLayout />}>
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="QLBP/Danhmuc" element={<Category />} />
+          <Route path="QLBP/Taodonhang" element={<CreateOrder />} />
+          <Route path="QLBP/Capnhatdonhang/:mailID" element={<EditOrder />} />
+          <Route path="*" element={<Navigate to="/" />} />
+      </Route>
+    </Routes>
   );
 
   // <ThemeCustomization>

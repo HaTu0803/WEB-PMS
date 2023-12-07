@@ -3,25 +3,7 @@ import { Input, Space, Menu, Image } from "antd";
 import { MenuUnfoldOutlined, DashboardOutlined } from "@ant-design/icons";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-// function getItem(label, key, icon, children, type) {
-//   return {
-//     key,
-//     icon,
-//     children,
-//     label,
-//     type,
-//   };
-// }
-// const items = [
-//   getItem('Dashboard', '/', <DashboardOutlined />),
-//   getItem('QUẢN LÝ BƯU PHẨM', '/QLBP', <MenuUnfoldOutlined />, [
-//     getItem('Danh mục', '/QLBP/Danhmuc'),
-//     getItem('Tạo đơn hàng', '/QLBP/Taodonhang'),
-//   ]),
-// ];
-// const onClick = (e) => {
-//   console.log('click', e);
-// };
+
 function SideMenu() {
   const { Search } = Input;
   const [collapsed, setCollapsed] = useState(false);
@@ -32,7 +14,7 @@ function SideMenu() {
 
   const navigate = useNavigate();
   return (
-    <div className="sider-style" style={{ width: 256 }}>
+    <div className="sider-style">
       {/* <Button
         type="primary"
         onClick={toggleCollapsed}
@@ -44,7 +26,7 @@ function SideMenu() {
 
       </Button> */}
       <Image
-        width={256}
+        width={250}
         src="https://khachhang-dev.247post.vn/img/logo_v2.png"
         alt="logo"
       />
@@ -53,7 +35,7 @@ function SideMenu() {
           placeholder="Tìm kiếm danh mục"
           onSearch={onSearch}
           style={{
-            width: 256,
+            width: 250,
           }}
         />
       </Space>
@@ -66,7 +48,7 @@ function SideMenu() {
           {
             label: "DASHBOARD",
             icon: <DashboardOutlined />,
-            key: "/",
+            key: "/home/dashboard",
           },
           {
             label: "QUẢN LÝ BƯU PHẨM",
@@ -74,16 +56,16 @@ function SideMenu() {
             children: [
               {
                 label: "Danh mục",
-                key: "/QLBP/Danhmuc",
+                key: "/home/QLBP/Danhmuc",
               },
               {
                 label: "Tạo đơn hàng",
-                key: "/QLBP/Taodonhang",
+                key: "/home/QLBP/Taodonhang",
               },
             ],
           },
         ]}
-        defaultSelectedKeys={["/"]}
+        defaultSelectedKeys={["/home/dashboard"]}
         // defaultOpenKeys={['sub1']}
         mode="inline"
         theme="light"
