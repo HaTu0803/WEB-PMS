@@ -10,10 +10,9 @@ import {
   Table,
   InputNumber,
   Popconfirm,
-  
 } from "antd";
 import { Link } from "react-router-dom";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { DatePicker, Space } from "antd";
 import { Typography } from "antd";
 import axios from "axios";
@@ -24,83 +23,92 @@ import dayjs from "dayjs";
 import { Control, Controller, useForm } from "react-hook-form";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 const { Option } = Select;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+
 function Filter({ dataSource, setDataSource }) {
   const RHFDatePickerField = (props) => {
     return (
       <Controller
-      control={props.control}
-      name={props.name}
-      rules={{
-        required: "This field is required",
-      }}
-      render={({ field, fieldState }) => {
-        return (
-          <>
-            <DatePicker
-              placeholder={props.placeholder}
-              status={fieldState.error ? "error" : undefined}
-              ref={field.ref}
-              name={field.name}
-              onBlur={field.onBlur}
-              value={field.value ? dayjs(field.value) : null}
-              onChange={(date) => {
-                field.onChange(date ? date.toISOString() : null);
-              }}
-            />
-            <br />
-            {fieldState.error ? (
-              <span style={{ color: "red" }}>{fieldState.error?.message}</span>
-            ) : null}
-          </>
-        );
-      }}
-    />
-  );
-};
-const { handleSubmit, control, watch } = useForm({
-  defaultValues: {
-    startDate: '',
-    endDate: '',
-    status: '',
-    Service: '',
-  },
-});
+        control={props.control}
+        name={props.name}
+        rules={{
+          required: "This field is required",
+        }}
+        render={({ field, fieldState }) => {
+          return (
+            <>
+              <DatePicker
+                placeholder={props.placeholder}
+                status={fieldState.error ? "error" : undefined}
+                ref={field.ref}
+                name={field.name}
+                onBlur={field.onBlur}
+                value={field.value ? dayjs(field.value) : null}
+                onChange={(date) => {
+                  field.onChange(date ? date.toISOString() : null);
+                }}
+              />
+              <br />
+              {fieldState.error ? (
+                <span style={{ color: "red" }}>
+                  {fieldState.error?.message}
+                </span>
+              ) : null}
+            </>
+          );
+        }}
+      />
+    );
+  };
+  const { handleSubmit, control, watch } = useForm({
+    defaultValues: {
+      startDate: dayjs().format("YYYY-MM-DD"),
+      endDate: dayjs().format("YYYY-MM-DD"),
+      status: "",
+      Service: "",
+    },
+  });
 
-const handleFormFinish = (data) => {
-  console.log('Form values:', data);
-  // Place your logic for fetching data or other actions here
-};
+  const handleFormFinish = (data) => {
+    console.log("Form values:", data);
+    // Place your logic for fetching data or other actions here
+  };
 
-const [tempStartDate, setTempStartDate] = useState('');
-  const [tempEndDate, setTempEndDate] = useState('');
-  const [tempCustomerID, setTempCustomerID] = useState('');
-  const [tempStatus, setTempStatus] = useState('');
+  const [tempStartDate, setTempStartDate] = useState("");
+  const [tempEndDate, setTempEndDate] = useState("");
+  const [tempCustomerID, setTempCustomerID] = useState("");
+  const [tempStatus, setTempStatus] = useState("");
   useEffect(() => {
-    const startDate = watch('startDate');
-    const endDate = watch('endDate');
-    const customerID = watch('customerId');
+    const startDate = watch("startDate");
+    const endDate = watch("endDate");
+    const customerID = watch("customerId");
 
-    const status = watch('status');
-    console.log('startDate:', startDate);
-    console.log('endDate:', endDate);
-    console.log('tempStartDate:', tempStartDate);
-    console.log('tempEndDate:', tempEndDate);
+    const status = watch("status");
+    console.log("startDate:", startDate);
+    console.log("endDate:", endDate);
+    console.log("tempStartDate:", tempStartDate);
+    console.log("tempEndDate:", tempEndDate);
 
-    if (startDate !== '' && endDate !== '' && customerID != '' && (startDate !== tempStartDate || endDate !== tempEndDate || customerID !== tempCustomerID)) {
+    if (
+      startDate !== "" &&
+      endDate !== "" &&
+      customerID != "" &&
+      (startDate !== tempStartDate ||
+        endDate !== tempEndDate ||
+        customerID !== tempCustomerID)
+    ) {
       setTempStartDate(startDate);
       setTempEndDate(endDate);
       setTempCustomerID(customerID);
       const fetchDataSources = async () => {
-        const token = Cookies.get('authToken');
+        const token = Cookies.get("authToken");
         const response = await axios.post(
-          'http://localhost:4000/mail/GetMailByDate',
+          "http://localhost:4000/mail/GetMailByDate",
           {
             FromDate: startDate, // Use startDate directly
-            ToDate: endDate,     // Use endDate directly
-            MailStatus: '' ,
-            serviceTypeID: '',
-            CustomerID: customerID || '', // Set customerID if available, otherwise use an empty string
+            ToDate: endDate, // Use endDate directly
+            MailStatus: "",
+            serviceTypeID: "",
+            CustomerID: customerID || "", // Set customerID if available, otherwise use an empty string
           },
           {
             headers: {
@@ -115,23 +123,23 @@ const [tempStartDate, setTempStartDate] = useState('');
       fetchDataSources();
     }
   });
-// useEffect(() => {
-//   const fetchDataSources = async () => {
-//     const token = Cookies.get("authToken");
-//     const response = await axios.post(
-//       'http://localhost:4000/mail/GetMailByDate', {
+  // useEffect(() => {
+  //   const fetchDataSources = async () => {
+  //     const token = Cookies.get("authToken");
+  //     const response = await axios.post(
+  //       'http://localhost:4000/mail/GetMailByDate', {
 
-//     }, {
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//       },
-//     });
-//     setDataSource(response.data);
-//   };
-//   fetchDataSources();
-// // }, [watch('startDate'), watch('endDate'), watch('status'), watch('service')]);
-// }, []);
-const [serviceType, setServiceType] = useState([]);
+  //     }, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+  //     setDataSource(response.data);
+  //   };
+  //   fetchDataSources();
+  // // }, [watch('startDate'), watch('endDate'), watch('status'), watch('service')]);
+  // }, []);
+  const [serviceType, setServiceType] = useState([]);
   useEffect(() => {
     const fetchServiceType = async () => {
       const token = Cookies.get("authToken");
@@ -209,86 +217,86 @@ const [serviceType, setServiceType] = useState([]);
   return (
     <div class="Category-style">
       <Typography.Title level={3}>DANH MỤC</Typography.Title>
-      <Form onFinish={handleSubmit(handleFormFinish)}
-    >
-     <form>
-        <Row gutter={[24]}
-        
-      justify="space-between"  // Set justify to space-between
-      align="flex-start"       // Set align to flex-start
-        >
-          <Col flex={5} >
-          {/* <span>{JSON.stringify(watch('startDate'))}</span> */}
-           {/* console.log({JSON.stringify(watch('startDate'))}); */}
-            <Form.Item
-              label="Từ ngày"
-              name="dateRange_1"
-              // style={{ width: 400 }}
-              className="min-width-110"
-            >
-               <RHFDatePickerField
-          placeholder="Từ ngày"
-          control={control}
-          name="startDate"
-        />
-            </Form.Item>
-          </Col>
-          <Col flex={5} >
-            <Form.Item
-              label="Đến ngày"
-              name="dateRange_2"
-              // style={{ width: 400 }}
-              className="min-width-110"
-            >
-             <RHFDatePickerField
-          placeholder="Đến ngày"
-          control={control}
-          name="endDate"
-        />
-            </Form.Item>
-          </Col>
-          <Col flex={5} >
-            <Form.Item label="Trạng thái" name="status">
-              <Select
-                showSearch
-                placeholder="Search to Select"
-                optionFilterProp="children"
-                filterOption={(input, option) =>
-                  (option?.label ?? "").includes(input)
-                }
+      <Form onFinish={handleSubmit(handleFormFinish)}>
+        <form>
+          <Row gutter={[16, 0]}>
+            <Col span={6}>
+              {/* <span>{JSON.stringify(watch('startDate'))}</span> */}
+              {/* console.log({JSON.stringify(watch('startDate'))}); */}
+              <Form.Item
+                label="Từ ngày"
+                name="dateRange_1"
+                // style={{ width: 400 }}
+                className="min-width-110"
               >
-                {/* {customer.map((opt) => (
+                <RHFDatePickerField
+                  placeholder="Từ ngày"
+                  control={control}
+                  name="startDate"
+                />
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <Form.Item
+                label="Đến ngày"
+                name="dateRange_2"
+                // style={{ width: 400 }}
+                className="min-width-110"
+              >
+                <RHFDatePickerField
+                  placeholder="Đến ngày"
+                  control={control}
+                  name="endDate"
+                />
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <Form.Item
+                label="Trạng thái"
+                name="status"
+                className="min-width-110"
+              >
+                <Select
+                  showSearch
+                  placeholder="Search to Select"
+                  optionFilterProp="children"
+                  filterOption={(input, option) =>
+                    (option?.label ?? "").includes(input)
+                  }
+                >
+                  {/* {customer.map((opt) => (
                     <Option key={opt.value} value={opt.value}>
                       {opt.label}
                     </Option>
                   ))} */}
-              </Select>
-            </Form.Item>
-          </Col>
-          <Col flex={5} >
-          <Form.Item
-              label="Dịch vụ"
-              name="Service"
-            >
-              <Select showSearch placeholder="" optionFilterProp="children">
-                {serviceType.map((opt) => (
-                  <Option key={opt.value} value={opt.value}>
-                    {opt.value} - {opt.label}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Col>
-          <Col flex={4} >
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <Form.Item
+                label="Dịch vụ"
+                name="Service"
+                className="min-width-110"
+              >
+                <Select showSearch placeholder="" optionFilterProp="children">
+                  {serviceType.map((opt) => (
+                    <Option key={opt.value} value={opt.value}>
+                      {opt.value} - {opt.label}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+            {/* <Col flex={4} >
           <Button type="primary" htmlType="submit" style={{width:'100%'}}>
                 Lấy dữ liệu
               </Button>
-            </Col>
-        </Row>
+            </Col> */}
+          </Row>
         </form>
 
-        <Row gutter={[24]}>
-          <Col span={16} order={1}>
+        <Row gutter={[16, 0]}>
+          <Col span={18}>
             <Form.Item
               label="Mã khách hàng"
               name="customerId"
@@ -313,8 +321,12 @@ const [serviceType, setServiceType] = useState([]);
             </Form.Item>
           </Col>
 
-          <Col span={6} order={2}>
-            <Form.Item label="Tình trạng" name="Status_2">
+          <Col span={6}>
+            <Form.Item
+              label="Tình trạng"
+              name="Status_2"
+              className="min-width-110"
+            >
               <Select
                 showSearch
                 placeholder=""
@@ -335,15 +347,10 @@ const [serviceType, setServiceType] = useState([]);
             </Form.Item>
           </Col>
         </Row>
-        <Row gutter={[24]}>
+        <Row gutter={[16, 0]}>
           <Col span={24}>
             <Form.Item label="Input" name="input" className="min-width-110">
-              <Input
-                showSearch
-                style={{
-                  width: 880,
-                }}
-              />
+              <Input showSearch />
             </Form.Item>
           </Col>
         </Row>
@@ -352,13 +359,13 @@ const [serviceType, setServiceType] = useState([]);
   );
 }
 function OrderList({ dataSource, setDataSource }) {
-  const [selectionType] = useState('checkbox');
+  const [selectionType] = useState("checkbox");
 
   const rowSelection = {
     onChange: (selectedRowKeys, selectedRows) => {
       console.log(
         `selectedRowKeys: ${selectedRowKeys}`,
-        'selectedRows: ',
+        "selectedRows: ",
         selectedRows
       );
     },
@@ -368,14 +375,14 @@ function OrderList({ dataSource, setDataSource }) {
     }),
   };
 
-
   // const originData = [];
   // const [data, setData] = useState(originData);
   // const [editingKey, setEditingKey] = useState("");
   // const isEditing = (record) => record.key === editingKey;
   const columns = [
-    {
-      key: "1",
+// Get the value of the createID date and convert this value to Day, Month, Year format according to the correct data. Not the current date    {
+      {
+key: "1",
       title: "Ngày nhận",
       dataIndex: "createdDate",
       editable: true,
@@ -383,13 +390,37 @@ function OrderList({ dataSource, setDataSource }) {
       // render: (name) => `${name.first} ${name.last}`,
       width: 150,
       fixed: "left",
+    
+        render: (text, record) => {
+          const dateObject = new Date(record.createdDate);
+          const formattedDate = `${dateObject.getDate()}/${dateObject.getMonth() + 1}/${dateObject.getFullYear()}`;
+          
+          return (
+            <>
+              {formattedDate}
+            </>
+          );
+        }
+
     },
+    // Get the value of createDate only get the time in hours minutes seconds
     {
       key: "2",
       title: "Giờ",
-      dataIndex: "CreatedDate",
+      dataIndex: "createdDate",
       width: 150,
       fixed: "left",
+      render: (text, record) => {
+        const dateObject = new Date(record.createdDate);
+        const formattedDate = `${dateObject.getHours()}:${dateObject.getMinutes()}:${dateObject.getSeconds()}`;
+        
+        return (
+          <>
+            {formattedDate}
+          </>
+        );
+      }
+      
     },
     {
       key: "3",
@@ -398,7 +429,7 @@ function OrderList({ dataSource, setDataSource }) {
       editable: true,
       sorter: true,
       sorter: (a, b) => a.mailID - b.mailID,
-      width: 150,
+      width: 200,
       fixed: "left",
     },
     {
@@ -434,13 +465,13 @@ function OrderList({ dataSource, setDataSource }) {
       key: "8",
       title: "DV",
       dataIndex: "serviceTypeID",
-      width: 150,
+      width: 60,
     },
     {
       key: "8",
       title: "Tên DV",
       dataIndex: "serviceTypeName",
-      width: 150,
+      width: 200,
     },
     {
       key: "9",
@@ -452,7 +483,7 @@ function OrderList({ dataSource, setDataSource }) {
       key: "10",
       title: "Loại hình",
       dataIndex: "mailType",
-      width: 150,
+      width: 100,
     },
     {
       key: "11",
@@ -494,13 +525,13 @@ function OrderList({ dataSource, setDataSource }) {
       key: "17",
       title: "% VAT",
       dataIndex: "",
-      width: 150,
+      width: 100,
     },
     {
       key: "18",
       title: "VAT",
-      dataIndex: "vATFee",
-      width: 150,
+      dataIndex: "vatFee",
+      width: 100,
     },
     {
       key: "19",
@@ -512,49 +543,49 @@ function OrderList({ dataSource, setDataSource }) {
       key: "20",
       title: "TL thực",
       dataIndex: "mailRealWeight",
-      width: 150,
+      width: 100,
     },
     {
       key: "21",
       title: "TL",
       dataIndex: "mailTotalWeight",
-      width: 150,
+      width: 100,
     },
     {
       key: "22",
       title: "TLQĐ",
       dataIndex: "mailConvertedWeight",
-      width: 150,
+      width: 100,
     },
     {
       key: "23",
       title: "Dài",
       dataIndex: "mailLength",
-      width: 150,
+      width: 100,
     },
     {
       key: "24",
       title: "Rộng",
       dataIndex: "mailWidth",
-      width: 150,
+      width: 100,
     },
     {
       key: "25",
       title: "Cao",
       dataIndex: "mailHeight",
-      width: 150,
+      width: 100,
     },
     {
       key: "26",
       title: "BC hiện tại",
-      dataIndex: "",
-      width: 150,
+      dataIndex: "postOfficeCreatedID",
+      width: 100,
     },
     {
       key: "27",
       title: "TT",
       dataIndex: "",
-      width: 150,
+      width: 100,
     },
     {
       key: "28",
@@ -590,7 +621,7 @@ function OrderList({ dataSource, setDataSource }) {
       key: "33",
       title: "Bên thứ 3",
       dataIndex: "",
-      width: 150,
+      width: 100,
     },
     {
       key: "34",
@@ -602,13 +633,13 @@ function OrderList({ dataSource, setDataSource }) {
       key: "35",
       title: "CP/TG",
       dataIndex: "",
-      width: 150,
+      width: 100,
     },
     {
       key: "36",
       title: "Người tạo",
       dataIndex: "postOfficeCreatedID",
-      width: 150,
+      width: 100,
     },
     {
       key: "37",
@@ -620,7 +651,7 @@ function OrderList({ dataSource, setDataSource }) {
       key: "38",
       title: "Người sửa",
       dataIndex: "postOfficeCreatedID",
-      width: 150,
+      width: 100,
     },
     {
       key: "39",
@@ -644,13 +675,13 @@ function OrderList({ dataSource, setDataSource }) {
       key: "42",
       title: "Họ tên (gửi)",
       dataIndex: "customerName",
-      width: 150,
+      width: 300,
     },
     {
       key: "43",
       title: "Địa chỉ (gửi)",
       dataIndex: "customerAddress",
-      width: 400,
+      width: 500,
     },
     {
       key: "44",
@@ -661,19 +692,19 @@ function OrderList({ dataSource, setDataSource }) {
     {
       key: "45",
       title: "Quốc gia (gửi)",
-      dataIndex: "customerAddress",
+      dataIndex: "customerNationID",
       width: 150,
     },
     {
       key: "46",
       title: "Tỉnh/Thành (gửi)",
-      dataIndex: "customerAddress",
+      dataIndex: "customerProvinceID",
       width: 150,
     },
     {
       key: "47",
       title: "Q/Huyện (gửi)",
-      dataIndex: "customerAddress",
+      dataIndex: "customerDistrictID",
       width: 150,
     },
     {
@@ -686,7 +717,7 @@ function OrderList({ dataSource, setDataSource }) {
       key: "49",
       title: "Địa chỉ (nhận)",
       dataIndex: "receiverAddress",
-      width: 150,
+      width: 500,
     },
     {
       key: "50",
@@ -698,13 +729,13 @@ function OrderList({ dataSource, setDataSource }) {
       key: "51",
       title: "BC phát",
       dataIndex: "receiverPostOfficeID",
-      width: 150,
+      width: 100,
     },
     {
       key: "52",
       title: "TT phát",
       dataIndex: "receiverZoneID",
-      width: 150,
+      width: 100,
     },
     {
       key: "53",
@@ -728,7 +759,7 @@ function OrderList({ dataSource, setDataSource }) {
       key: "56",
       title: "Tỉnh/Thành (nhận)",
       dataIndex: "receiverProvinceID",
-      width: 150,
+      width: 200,
     },
     {
       key: "57",
@@ -752,7 +783,7 @@ function OrderList({ dataSource, setDataSource }) {
       key: "60",
       title: "Địa chỉ chi tiết",
       dataIndex: "receiverDetailedAddress",
-      width: 150,
+      width: 500,
     },
     // {
     //   key: "61",
@@ -819,7 +850,7 @@ function OrderList({ dataSource, setDataSource }) {
       render: (_, record) => {
         return (
           <>
-          <EditOutlined
+            <EditOutlined
               onClick={() => onEdit(record)}
               style={{ cursor: "pointer", marginRight: 12 }}
             />
@@ -847,7 +878,7 @@ function OrderList({ dataSource, setDataSource }) {
 
   const onDelete = async (record) => {
     Modal.confirm({
-      title: 'Bạn có chắc chắn muốn xóa đơn hàng này?' ,
+      title: "Bạn có chắc chắn muốn xóa đơn hàng này?",
       okText: "Xóa",
       okType: "danger",
       cancelText: "Hủy",
@@ -869,15 +900,15 @@ function OrderList({ dataSource, setDataSource }) {
       },
     });
   };
-  
+
   const onEdit = (record) => {
     Modal.confirm({
       title: "Bạn có chắc chắn muốn cập nhật?",
       okText: "Cập nhật",
       cancelText: "Hủy",
       onOk: async () => {
-          const link = `/home/QLBP/Capnhatdonhang/${record.mailID}`;
-          window.location.href = link; // You can also use your preferred navigation method
+        const link = `/home/QLBP/Capnhatdonhang/${record.mailID}`;
+        window.location.href = link; // You can also use your preferred navigation method
       },
     });
   };
@@ -973,13 +1004,13 @@ function OrderList({ dataSource, setDataSource }) {
     // <Form form={form} component={false}>
     <Form>
       <Table
-      
+        style={{ width: "1100px" }}
         // components={{
         //   body: {
         //     cell: EditableCell,
         //   },
         // }}
-        
+
         rowSelection={{ ...rowSelection, type: selectionType }}
         columns={columns}
         dataSource={dataSource}
@@ -1005,8 +1036,8 @@ function Category() {
   const [dataSource, setDataSource] = useState([]);
   return (
     <div className="category-wrapper">
-      <Filter dataSource={dataSource} setDataSource={setDataSource}/>
-      <OrderList dataSource={dataSource} setDataSource={setDataSource}/>
+      <Filter dataSource={dataSource} setDataSource={setDataSource} />
+      <OrderList dataSource={dataSource} setDataSource={setDataSource} />
     </div>
   );
 }

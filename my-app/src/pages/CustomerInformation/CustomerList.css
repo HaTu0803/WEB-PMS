@@ -1,0 +1,18 @@
+.table-style {
+    width: 600px;
+    margin: 0 auto;
+}
+
+.Customer-Style{
+    margin: 0 auto;
+    margin-top: 20px;
+}
+
+/* .:where(.css-dev-only-do-not-override-18iikkb).ant-form{
+    width: 600px;
+    margin: 0 auto;
+} */
+
+.ant-spin-container{
+    width: 1000px;
+}

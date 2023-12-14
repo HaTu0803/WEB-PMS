@@ -1,7 +1,7 @@
 import "./index.css";
 import { DownOutlined } from "@ant-design/icons";
 import { Input, Space, Badge, Dropdown, Avatar, Typography } from "antd";
-
+import { Link } from "react-router-dom";
 const { Search } = Input;
 
 function Header() {
@@ -24,7 +24,11 @@ function Header() {
       type: "divider",
     },
     {
-      label: <a>Đăng xuất</a>,
+      label: (
+        <Link to="/" style={{ color: "red" }}>
+          Đăng xuất
+        </Link>
+      ),
       key: "3",
       danger: true,
     },

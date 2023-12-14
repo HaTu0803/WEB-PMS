@@ -1,40 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import './Login.css';
-import { Button, Checkbox, Form, Input, message } from 'antd'; // Import the message component from Ant Design
-import axios from 'axios';
-import Cookies from 'js-cookie';
+import React, { useState, useEffect } from "react";
+import "./Login.css";
+import { Button, Checkbox, Form, Input, message } from "antd"; // Import the message component from Ant Design
+import axios from "axios";
+import Cookies from "js-cookie";
 
 const Login = () => {
   const onFinish = (values) => {
     axios
-      .post(
-        `http://localhost:4000/users/authenticate`,
-        {
-          UserID: values.UserID,
-          Password: values.Password,
-          PostOfficeID: values.PostOfficeID,
-        }
-      )
+      .post(`http://localhost:4000/users/authenticate`, {
+        UserID: values.UserID,
+        Password: values.Password,
+        PostOfficeID: values.PostOfficeID,
+      })
       .then((response) => {
         // sau nay co sua gi khi dang nhap loi thi tinh h chi tinh login dung
-        Cookies.set('authToken', response.data.token, { expires: 1 })
-        window.location.href = '/home/dashboard'
+        Cookies.set("authToken", response.data.token, { expires: 1 });
+        window.location.href = "/home/dashboard";
 
-          //   message.error('Tên đăng nhập, mật khẩu hoặc bưu cục không đúng.');
+        //   message.error('Tên đăng nhập, mật khẩu hoặc bưu cục không đúng.');
       })
       .catch((error) => {
         // If not successful (duplicate username or other error)
-        console.error('Error from server:', error)
-      })
+        console.error("Error from server:", error);
+      });
   };
 
   const onFinishFailed = (errorInfo) => {
-    console.log('Failed:', errorInfo);
+    console.log("Failed:", errorInfo);
   };
 
   return (
     <Form
-    className='login-form'
+      className="login-form"
       name="basic"
       labelCol={{
         span: 6,
@@ -55,7 +52,7 @@ const Login = () => {
         rules={[
           {
             required: true,
-            message: 'Nhập tên đăng nhập!',
+            message: "Nhập tên đăng nhập!",
           },
         ]}
       >
@@ -68,7 +65,7 @@ const Login = () => {
         rules={[
           {
             required: true,
-            message: 'Nhập mật khẩu!',
+            message: "Nhập mật khẩu!",
           },
         ]}
       >
@@ -81,7 +78,7 @@ const Login = () => {
         rules={[
           {
             required: true,
-            message: 'Nhập bưu cục!',
+            message: "Nhập bưu cục!",
           },
         ]}
       >

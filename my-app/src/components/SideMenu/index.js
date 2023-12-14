@@ -1,6 +1,6 @@
 import "./index.css";
 import { Input, Space, Menu, Image } from "antd";
-import { MenuUnfoldOutlined, DashboardOutlined } from "@ant-design/icons";
+import { MenuUnfoldOutlined, DashboardOutlined, OrderedListOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -46,13 +46,13 @@ function SideMenu() {
         }}
         items={[
           {
-            label: "DASHBOARD",
+            label: "Dashboard",
             icon: <DashboardOutlined />,
             key: "/home/dashboard",
           },
           {
-            label: "QUẢN LÝ BƯU PHẨM",
-            icon: <MenuUnfoldOutlined />,
+            label: "Quản lý bưu phẩm ",
+            icon: <OrderedListOutlined />,
             children: [
               {
                 label: "Danh mục",
@@ -64,8 +64,14 @@ function SideMenu() {
               },
             ],
           },
+          {
+            label: "Thông tin khách hàng",
+            icon: <InfoCircleOutlined />,
+            key: "/home/QLKH/Danhsach",
+          },
         ]}
-        defaultSelectedKeys={["/home/dashboard"]}
+        
+        defaultSelectedKeys={["/home/QLBP/Danhmuc"]}
         // defaultOpenKeys={['sub1']}
         mode="inline"
         theme="light"

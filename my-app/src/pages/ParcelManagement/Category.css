@@ -20,3 +20,19 @@
     min-width: 110px!important;
 }
 
+:where(.css-dev-only-do-not-override-18iikkb).ant-pagination .ant-pagination-item-active{
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+:where(.css-dev-only-do-not-override-18iikkb).ant-pagination .ant-pagination-item-active a{
+    color: var(--primary-color);
+}
+
+:where(.css-dev-only-do-not-override-18iikkb).ant-pagination .ant-pagination-item-active:hover{
+    border-color: var(--primary-color-hover);
+    color: var(--primary-color-hover);
+}
+:where(.css-dev-only-do-not-override-18iikkb).ant-pagination .ant-pagination-item-active a:hover{
+    color: var(--primary-color-hover);
+}
+
