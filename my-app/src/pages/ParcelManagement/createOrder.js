@@ -22,12 +22,18 @@ import "./createOrder.css";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
-import { DeleteOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  CloseSquareOutlined,
+  SaveOutlined,
+} from "@ant-design/icons";
 import { useParams } from "react-router-dom";
 
 // import Theme from '../../themes/theme';
 const { RangePicker } = DatePicker;
 const { Option } = Select;
+
 function CreateOrder() {
   const [form] = Form.useForm();
   const [formModal] = Form.useForm();
@@ -35,17 +41,15 @@ function CreateOrder() {
   const [modal, contextHolder] = Modal.useModal();
   const { mailID } = useParams();
   const [packageAmount, setPackageAmount] = useState(0);
+  // const [tempResponseData, setTempResponseData] = useState('');
 
-  // let MailReponse = [];
-  
-  const [tempResponseData, setTempResponseData] = useState(null);
-  console.log("tempResponseData", tempResponseData);
+  // // let MailReponse = [];
+
+  // console.log("tempResponseData", tempResponseData);
   const handleFormFinish = async () => {
     try {
       const valuesPackage = await formModal.validateFields();
-      console.log("valuesPackage", valuesPackage);
       const values = await form.validateFields();
-      console.log("Form values:", values);
 
       const token = Cookies.get("authToken");
 
@@ -58,12 +62,8 @@ function CreateOrder() {
           },
         }
       );
-
+  
       const serviceName = serviceType.find((s) => s.value === values.Service);
-
-      console.log("ok", values.Package_Quantity);
-      console.log("valuesPackage", valuesPackage);
-      console.log("values", packageAmount);
 
      
 
@@ -118,7 +118,7 @@ function CreateOrder() {
           CustomerRepresent: values.Send,
           CustomerAddress: customerInfo.address,
           ReceiverPhoneNumber: values.Phone_Number_2,
-          RecieverName: values.Receiver_Name,
+          RecieverName: values.Receiver_Name ,
           ReceiverCompanyName: values.Receiver_Company,
           ReceiverAddress: values.Address_2,
           ReceiverDetailedAddress: values.Address_3,
@@ -135,11 +135,11 @@ function CreateOrder() {
           PackageListID: tempResponse.data,
           MailRealWeight: values.Actual_weight,
           MailTotalWeight: values.Weight,
-          MailConvertedWeight: values.Converted_weight,
-          MailLength: calculateTotalLength(),
-          MailWidth: calculateTotalWidth(),
-          MailHeight: calcutlateTotalHeigth(),
-          PackageAmount: values.Package_Quantity,
+          MailConvertedWeight: values.Converted_weight || 0,
+          MailLength: calculateTotalLength() || 0,
+          MailWidth: calculateTotalWidth()  || 0,
+          MailHeight: calcutlateTotalHeigth() || 0,
+          PackageAmount: values.Package_Quantity || 0,
           PackageNotes: "",
           ServiceTypeID: values.Service,
           ServiceTypeName: serviceName.label,
@@ -159,85 +159,13 @@ function CreateOrder() {
             Authorization: `Bearer ${token}`,
           },
         }
-      );
-        setTempResponseData(tempResponse.data);
-     
+      ); 
     
-      // const GetbyID = await axios.post(
-      //   `http://localhost:4000/mail/${tempResponse.data}`,
-      //   {},
-      //   {
-      //     headers: {
-      //       Authorization: `Bearer ${token}`,
-      //     },
-      //   }
-      // );
-      // console.log("GetbyID", GetbyID);
-      // console.log("GetbyID.data", GetbyID.data.mailID);
-      // console.log("GetbyID.data", );
-      
-        // let ListPackageID = [];
-        // for (let i = 0; i < MailReponse.data.length; i++) {
-        //   const PackageID = MailReponse.data[i];
-        //   const packageObject = {
-        //     PackageID: PackageID,
-        //     MailID: tempResponse.data,
-        //     IsUsedMailID: true,
-        //     PackageStatus: "KHỞI TẠO",
-        //     PackageRealWeight: valuesPackage.Actual_weight_Modal,
-        //     PackageLength: valuesPackage.mail_length,
-        //     PackageWeight: valuesPackage.mail_width,
-        //     PackageHeight: valuesPackage.mail_height,
-        //     PackageTotalWight: getFirstWeight(),
-        //     PackageConvertedWeight: getFirstConvertedWeight(),
-        //     PackageNotes: "",
-        //   };
-        //   ListPackageID.push(packageObject);
-        // }
-        // const ListPackageIDJson = JSON.stringify(ListPackageID);
 
-        // console.log("ListPackageID 1", ListPackageID);
-        // // console.log("ListPackageID 1", ListPackageIDJson);
-       
-        // console.log("ListPackageID 4", ListPackageIDJson);
-        // const createPackageResponse = await axios.post(
-        //   "http://localhost:4000/mail/CreatePackage",
-        //   {
-        //     ListPackageIDJson,
-        //   },
-        //   {
-        //     headers: {
-        //       Authorization: `Bearer ${token}`,
-        //       'Content-Type': 'application/json',
-        //     },
-        //   }
-        // );
-        // console.log("createPackageResponse", createPackageResponse);
-      
-      // if (response.data) {
-      //   showModalOpen();
-      // } else {
-      //   message.error("Tạo đơn hàng thất bại");
-      // }
-    } catch (error) {
-      // Handle request error
-      console.error("API request failed:", error);
-    }
-  };
-  console.log("tempResponse", tempResponseData);
-
-
-  const handleFormCreatePackage = async () => {
-   
-      const valuesPackage = await formModal.validateFields();
-      console.log("valuesPackage", valuesPackage);
-      const values = await form.validateFields();
-      console.log("Form values:", values);
-      const token = Cookies.get("authToken");
       const MailReponse = await axios.post(
         "http://localhost:4000/mail/GeneratePackageID",
         {
-          MailID: tempResponseData,
+          MailID: response.data,
           PackageAmount: values.Package_Quantity,
           SeperateSymbol: valuesPackage.Symbol,
         },
@@ -254,29 +182,26 @@ function CreateOrder() {
         const PackageID = MailReponse.data[i];
         const packageObject = {
           PackageID: PackageID,
-          MailID: tempResponseData,
+          MailID: tempResponse.data,
           IsUsedMailID: true,
           PackageStatus: "KHỞI TẠO",
-          PackageRealWeight: valuesPackage.Actual_weight_Modal,
-          PackageLength: valuesPackage.mail_length,
-          PackageWeight: valuesPackage.mail_width,
-          PackageHeight: valuesPackage.mail_height,
-          PackageTotalWight: getFirstWeight(),
-          PackageConvertedWeight: getFirstConvertedWeight(),
+          PackageRealWeight: getRowRealWeight(i),
+          PackageLength: getRowLength(i),
+          PackageWeight: getRowWidth(i),
+          PackageHeight: getRowHeight(i),
+          PackageTotalWight: getRowWeight(i),
+          PackageConvertedWeight: getRowConvertedWeight(i),
           PackageNotes: "",
         };
         ListPackageID.push(packageObject);
       }
-      const ListPackageIDJson = JSON.stringify(ListPackageID);
 
       console.log("ListPackageID 1", ListPackageID);
-     
-      console.log("ListPackageID 4", ListPackageIDJson);
+      // console.log("ListPackageID 1", ListPackageIDJson);
+
       const createPackageResponse = await axios.post(
         "http://localhost:4000/mail/CreatePackage",
-        {
-          ListPackageID: ListPackageIDJson,
-        },
+        ListPackageID,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -285,15 +210,18 @@ function CreateOrder() {
         }
       );
       console.log("createPackageResponse", createPackageResponse);
-    
-    if (createPackageResponse.data) {
-      showModalOpen();
-    } else {
-      message.error("Tạo đơn hàng thất bại");
+
+      if (response.data) {
+        showModalOpen();
+      } else {
+        message.error("Tạo đơn hàng thất bại");
+      }
+    } catch (error) {
+      // Handle request error
+      console.error("API request failed:", error);
     }
   };
-
-  
+ 
 
   const [country, setCountry] = useState([]);
   useEffect(() => {
@@ -585,9 +513,14 @@ function CreateOrder() {
   const handleOk = () => {
     form.setFieldsValue({
       Package_Quantity: formModal.getFieldValue("Package_Quantity_Modal"),
-      Converted_weight: formModal.getFieldValue("Total_converted_weight"),
-      Actual_weight: formModal.getFieldValue("Total_real_weight"),
-      Weight: formModal.getFieldValue("Total_weight"),
+      // Converted_weight: formModal.getFieldValue("Total_converted_weight"),
+      // Actual_weight: formModal.getFieldValue("Total_real_weight"),
+      // Weight: formModal.getFieldValue("Total_weight"),
+    });
+    form.setFieldsValue({
+      Converted_weight: calculateTotalConvertedWeight(),
+      ActWeightual_weight: calculateTotalRealWeight(),
+      Weight: calculateTotalWeight(),
     });
 
     setIsModalOpen(false);
@@ -621,6 +554,394 @@ function CreateOrder() {
 
   // -----------TẠO KIỆN-----------
 
+  const [totalConvertedWeight, setTotalConvertedWeight] = useState(0);
+  const [totalWeight, setTotalWeight] = useState(0);
+  const calculateTotalConvertedWeight = () => {
+    let totalConvertedWeight = 0.0;
+    let count = 0;
+    for (let i = 0; i < dataSourcePackage.length; i++) {
+      const item = dataSourcePackage[i];
+      const convertedWeight = item.PackageConvertedWeight;
+      if (convertedWeight) {
+        totalConvertedWeight += parseFloat(convertedWeight);
+        count++;
+      }
+    }
+    // setTotalConvertedWeight(totalConvertedWeight);
+    // console.log("totalConvertedWeight", totalConvertedWeight);
+    return totalConvertedWeight.toFixed(3);
+  };
+
+  const calculateTotalWeight = () => {
+    let totalWeight = 0.0;
+    let count = 0;
+    for (let i = 0; i < dataSourcePackage.length; i++) {
+      const item = dataSourcePackage[i];
+      const weight = item.PackageTotalWight;
+      if (weight) {
+        totalWeight += parseFloat(weight);
+        count++;
+      }
+    }
+    // setTotalWeight(totalWeight);
+    // console.log("totalWeight", totalWeight);
+    return totalWeight.toFixed(3);
+  };
+
+  const [inputValue, setInputValue] = useState({
+    PackageRealWeight: " ",
+  });
+
+  const [defaultTotalRealWeight, setDefaultTotalRealWeight] = useState("0.000");
+  const [defaultTotalWeight, setDefaultTotalWeight] = useState("0.000");
+  const [defaultTotalConvertedWeight, setDefaultTotalConvertedWeight] =
+    useState("0.000");
+  
+  useEffect(() => {
+    if (dataSourcePackage.length > 0) {
+      const defaultTotalRealWeight = calculateTotalRealWeight();
+      setDefaultTotalRealWeight(defaultTotalRealWeight);
+      const defaultTotalWeight = calculateTotalWeight();
+      setDefaultTotalWeight(defaultTotalWeight);
+      const defaultTotalConvertedWeight = calculateTotalConvertedWeight();
+      setDefaultTotalConvertedWeight(defaultTotalConvertedWeight);
+    }
+    
+
+  }, []);
+
+  const calcutlateTotalHeigth = () => {
+    let totalHeight = 0.0;
+    let count = 0;
+    for (let i = 0; i < dataSourcePackage.length; i++) {
+      const item = dataSourcePackage[i];
+      const height = item.PackageHeight;
+      if (height) {
+        totalHeight += parseFloat(height);
+        count++;
+      }
+    }
+    // setTotalWeight(totalWeight);
+    return totalHeight.toFixed(3);
+  };
+
+  const calculateTotalLength = () => {
+    let totalLength = 0.0;
+    let count = 0;
+    for (let i = 0; i < dataSourcePackage.length; i++) {
+      const item = dataSourcePackage[i];
+      const length = item.PackageLength;
+      if (length) {
+        totalLength += parseFloat(length);
+        count++;
+      }
+    }
+    // setTotalWeight(totalWeight);
+    return totalLength.toFixed(3);
+  };
+
+  const calculateTotalWidth = () => {
+    let totalWidth = 0.0;
+    let count = 0;
+    for (let i = 0; i < dataSourcePackage.length; i++) {
+      const item = dataSourcePackage[i];
+      const width = item.PackageWeight;
+      if (width) {
+        totalWidth += parseFloat(width);
+        count++;
+      }
+    }
+    // setTotalWeight(totalWeight);
+    return totalWidth.toFixed(3);
+  };
+
+  const calculateTotalRealWeight = () => {
+    let totalRealWeight = 0.0;
+
+    let count = 0;
+    for (let i = 0; i < dataSourcePackage.length; i++) {
+      const item = dataSourcePackage[i];
+      const realWeight = item.PackageRealWeight;
+      if (realWeight) {
+        totalRealWeight += parseFloat(realWeight);
+        count++;
+      }
+    }
+    // setTotalWeight(totalWeight);
+    return totalRealWeight.toFixed(3);
+  };
+  // if number of packageAmount is different from 0, then converted weight = total converted weight, TL = Total TL,
+  // console.log("123", dataSourcePackage.length);
+
+  // const PackageNotes = () => {
+  //   let PackageNotes = "";
+  //   for (let i = 0; i < dataSourcePackage.length; i++) {
+  //     const item = dataSourcePackage[i];
+  //     const notes = item.PackageNotes;
+  //     if (notes) {
+  //       PackageNotes += notes;
+  //     }
+  //   }
+  //   return PackageNotes;
+  // };
+
+  // const handleWeightChange = (value) => {
+  //   const totalConvertedWeight = calculateTotalConvertedWeight(value);
+  //   const totalWeight = calculateTotalWeight(value);
+  //   const totalRealWeight = calculateTotalRealWeight(value);
+  //   form.setFieldsValue({
+  //     Converted_weight: totalConvertedWeight,
+  //     Weight: totalWeight,
+  //     Actual_weight: totalRealWeight,
+  //   });
+  // };
+
+
+  const getRowConvertedWeight = (row) => {
+    let convertedWeight = 0;
+    for (let i = 0; i < dataSourcePackage.length; i++) {
+      const item = dataSourcePackage[row];
+      const firstItem = item.PackageConvertedWeight;
+      convertedWeight = firstItem
+        ? parseFloat(firstItem).toFixed(3)
+        : "0.000";
+    }
+    return convertedWeight;
+  };
+
+  const getRowWeight = (row) => {
+    let weight = 0;
+    for (let i = 0; i < dataSourcePackage.length; i++) {
+      const item = dataSourcePackage[row];
+      const firstItem = item.PackageTotalWight;
+      weight = firstItem ? parseFloat(firstItem).toFixed(3) : "0.000";
+    }
+    return weight;
+  };
+
+  const getRowRealWeight = (row) => {
+    let realWeight = 0;
+    for (let i = 0; i < dataSourcePackage.length; i++) {
+      const item = dataSourcePackage[row];
+      const firstItem = item.PackageRealWeight;
+      realWeight = firstItem ? parseFloat(firstItem).toFixed(3) : "0.000";
+    }
+    return realWeight;
+  };
+
+  const getRowLength = (row) => {
+    let length = 0;
+    for (let i = 0; i < dataSourcePackage.length; i++) {
+      const item = dataSourcePackage[row];
+      const firstItem = item.PackageLength;
+      length = firstItem ? parseFloat(firstItem).toFixed(3) : "0.000";
+    }
+    return length;
+  };
+
+  const getRowWidth = (row) => {
+    let width = 0;
+    for (let i = 0; i < dataSourcePackage.length; i++) {
+      const item = dataSourcePackage[row];
+      const firstItem = item.PackageWeight;
+      width = firstItem ? parseFloat(firstItem).toFixed(3) : "0.000";
+    }
+    return width;
+  };
+
+  const getRowHeight = (row) => {
+    let height = 0;
+    for (let i = 0; i < dataSourcePackage.length; i++) {
+      const item = dataSourcePackage[row];
+      const firstItem = item.PackageHeight;
+
+      height = firstItem ? parseFloat(firstItem).toFixed(3) : "0.000";
+    }
+    return height;
+  };
+  
+
+  const calculateConvertedWeight = (values) => {
+    let convertedWeight = 0;
+
+    // const { MailLength, MailWidth, MailHeight, ServiceTypeID } = values;
+    if (values.serviceTypeID === "DE" || values.serviceTypeID === "ED") {
+      convertedWeight = (mailLength * mailWidth * mailHeight) / 6000;
+    } else if (values.serviceTypeID === "IM" || values.serviceTypeID === "IE") {
+      convertedWeight = (mailLength * mailWidth * mailHeight * 3) / 10000;
+    } else {
+      convertedWeight = (mailLength * mailWidth * mailHeight) / 5000;
+    }
+    console.log("convertedWeight 2", convertedWeight);
+    setConvertedWeight(convertedWeight);
+    calculateWeight();
+    return convertedWeight.toFixed(3);
+  };
+  const calculateWeight = () => {
+    let weight = 0.0;
+    if (actualWeight > convertedWeight) {
+      weight = parseFloat(actualWeight);
+    } else if (convertedWeight > actualWeight) {
+      weight = parseFloat(convertedWeight);
+    }
+    // } else if (weight > convertedWeight) {
+    //   weight = parseFloat(weight);
+    // } else if (weight > actualWeight) {
+    //   weight = parseFloat(weight);
+    // }
+
+    console.log("weight 2", weight);
+    setWeight(weight);
+    return weight.toFixed(3);
+    // return weight.toFixed(3);
+  };
+
+  const EditableCell = ({
+    editing,
+    dataIndex,
+    title,
+    inputType,
+    record,
+    index,
+    children,
+    ...restProps
+  }) => {
+    const inputNode = inputType === "number" ? <InputNumber /> : <Input />;
+    return (
+      <td {...restProps}>
+        {editing ? (
+          <Form.Item
+            name={dataIndex}
+            // style={{
+            //   margin: 0,
+            // }}
+            rules={[
+              {
+                required: true,
+                message: `Please Input ${title}!`,
+              },
+            ]}
+          >
+            {inputNode}
+          </Form.Item>
+        ) : (
+          children
+        )}
+      </td>
+    );
+  };
+
+  const [editingKey, setEditingKey] = useState("");
+  const isEditing = (record) => record.key === editingKey;
+  const edit = (record) => {
+    formModal.setFieldsValue({
+      PackageHeight: "",
+      PackageLength: "",
+      PackageWeight: "",
+      PackageRealWeight: "",
+      ...record,
+    });
+    setEditingKey(record.key);
+  };
+ 
+  const cancel = () => {
+    setEditingKey("");
+  };
+  
+  const save = async (key) => {
+    try {
+      const row = await formModal.validateFields();
+      const newData = [...dataSourcePackage];
+      const index = newData.findIndex((item) => key === item.key);
+
+      let updatedRow;
+      if (index > -1) {
+        const item = newData[index];
+        updatedRow = { ...item, ...row, ...
+          
+          handleWeightCalculation(row)
+        
+        };
+        newData.splice(index, 1, updatedRow);
+      } else {
+        updatedRow = { ...row, ...handleWeightCalculation(row) };
+        newData.push(updatedRow);
+        
+      }
+
+
+
+      setDataSourcePackage(newData);
+      setEditingKey("");
+      console.log("newData", newData);
+      console.log("updatedRow", updatedRow);
+      console.log("row", row);
+    } catch (errInfo) {
+      console.log("Validate Failed:", errInfo);
+    }
+  };
+  const handleWeightCalculation = (row) => {
+   const { PackageRealWeight, PackageLength, PackageWeight, PackageHeight } = row;
+   const ServiceTypeID = form.getFieldValue("Service");
+    const convertedWeight = () => {
+      console.log("PackageRealWeight", PackageRealWeight);
+      let convertedWeight = 0;
+      if (ServiceTypeID === "DE" || ServiceTypeID === "ED") {
+        convertedWeight = (PackageLength * PackageWeight * PackageHeight) / 6000;
+      } else if (ServiceTypeID === "IM" || ServiceTypeID === "IE") {
+        convertedWeight = (PackageLength * PackageWeight * PackageHeight * 3) / 10000;
+      } else {
+        convertedWeight = (PackageLength * PackageWeight * PackageHeight) / 5000;
+      }
+      console.log("convertedWeight 2", convertedWeight);
+      setConvertedWeight(convertedWeight);
+      return convertedWeight.toFixed(3);
+    }
+ 
+
+    const weight = () => {
+      let weight = 0.0;
+      if (convertedWeight() < PackageRealWeight) {
+        weight = parseFloat(PackageRealWeight);
+      } else if (convertedWeight() > PackageRealWeight) {
+        weight = parseFloat(convertedWeight());
+      }
+
+      console.log("weight 2", weight);
+      setWeight(weight);
+      return weight.toFixed(3);
+      // return weight.toFixed(3);
+    }
+
+    const PackageNotes = () => {
+      let PackageNotes = "";
+      for (let i = 0; i < dataSourcePackage.length; i++) {
+        const item = dataSourcePackage[i];
+        const notes = item.PackageNotes;
+        if (notes) {
+          PackageNotes += notes;
+        }
+      }
+      return PackageNotes;
+    };
+    const updatedRow = {
+      PackageRealWeight: parseFloat(PackageRealWeight).toFixed(3),
+      PackageLength: parseFloat(PackageLength).toFixed(3),
+      PackageWeight: parseFloat(PackageWeight).toFixed(3),
+      PackageHeight: parseFloat(PackageHeight).toFixed(3),
+      PackageTotalWight: weight(),
+      PackageConvertedWeight: convertedWeight(),
+      PackageNotes: <Input />,
+    };
+
+    console.log("updatedRow", updatedRow);
+    return updatedRow;
+
+
+
+   
+  };
+
   const handleDelete = (key) => {
     const newData = dataSourcePackage.filter((item) => item.key !== key);
     setDataSourcePackage(newData);
@@ -636,7 +957,6 @@ function CreateOrder() {
       title: "Mã kiện",
       dataIndex: "PackageID",
       key: "PackageID",
-      editable: true,
     },
     {
       title: "TL thực",
@@ -646,6 +966,9 @@ function CreateOrder() {
     },
     {
       title: "Kích thước (cm)",
+      dataIndex: "PackageSize",
+      editable: true,
+
       children: [
         {
           title: "Dài",
@@ -694,17 +1017,94 @@ function CreateOrder() {
     {
       title: "Thao tác",
       dataIndex: "operation",
-      render: (_, record) =>
-        dataSourcePackage.length >= 1 ? (
-          <Popconfirm
-            title="Sure to delete?"
-            onConfirm={() => handleDelete(record.key)}
-          >
-            <DeleteOutlined style={{ color: "var(--primary-color)" }} />
-          </Popconfirm>
-        ) : null,
+      render: (_, record) => {
+        const editable = isEditing(record);
+        return (
+          <span>
+            {dataSourcePackage.length >= 1 ? (
+              editable ? (
+                <>
+                  <Typography.Link
+                    onClick={() => save(record.key)}
+                    style={{
+                      marginRight: 8,
+                      color: "var(--primary-color)",
+                    }}
+                  >
+                    {/* <SaveOutlined /> */}
+                    Lưu
+                  </Typography.Link>
+                  <Popconfirm
+                    title="Sure to cancel?"
+                    onConfirm={cancel}
+                    style={{
+                      marginRight: 8,
+                      color: "var(--primary-color)",
+                    }}
+                  >
+                    {/* <CloseSquareOutlined /> */}
+                    <Typography.Link>Hủy</Typography.Link>
+                  </Popconfirm>
+                </>
+              ) : (
+                <>
+                  <Typography.Link
+                    disabled={editingKey !== ""}
+                    onClick={() => edit(record)}
+                  >
+                    <EditOutlined style={{ color: "var(--primary-color)" }} />
+                  </Typography.Link>
+                  <Popconfirm
+                    title="Sure to delete?"
+                    onConfirm={() => handleDelete(record.key)}
+                  >
+                    <DeleteOutlined
+                      style={{
+                        color: "var(--primary-color)",
+                        marginLeft: 8,
+                      }}
+                    />
+                  </Popconfirm>
+                </>
+              )
+            ) : null}
+          </span>
+        );
+      },
     },
   ];
+
+  const mergedColumns = defaultColumns.map((col) => {
+    if (!col.editable) {
+      return col;
+    }
+    if (col.children) {
+      return {
+        ...col,
+        children: col.children.map((child) => ({
+          ...child,
+          onCell: (record) => ({
+            record,
+            inputType: child.dataIndex === "PackageSize" ? "text" : "number",
+            dataIndex: child.dataIndex,
+            title: child.title,
+            editing: isEditing(record),
+          }),
+        })),
+      };
+    }
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        inputType: col.dataIndex === "PackageSize" ? "text" : "number",
+        dataIndex: col.dataIndex,
+        title: col.title,
+        editing: isEditing(record),
+      }),
+    };
+  });
+
   const [packageQuantity, setPackageQuantity] = useState(0);
   const applyChanges = () => {
     if (packageQuantity < 2) {
@@ -791,265 +1191,53 @@ function CreateOrder() {
   //   ))}
   // </Select>
 
-
-
-  const calculateWeight = () => {
-    let weight = 0;
-    if (actualWeight > convertedWeight) {
-      weight = actualWeight;
-    } else {
-      weight = convertedWeight;
-    }
-    console.log("weight 2",weight);
-    setWeight(weight);
-    return weight;
-    // return weight.toFixed(3);
-  };
-
-  const calculateConvertedWeight = (values) => {
-    let convertedWeight = 0;
-    // const { MailLength, MailWidth, MailHeight, ServiceTypeID } = values;
-    if (values.serviceTypeID === "DE" || values.serviceTypeID === "ED") {
-      convertedWeight = (mailLength * mailWidth * mailHeight) / 6000;
-    } else if (values.serviceTypeID === "IM" || values.serviceTypeID === "IE") {
-      convertedWeight = (mailLength * mailWidth * mailHeight * 3) / 10000;
-    } else {
-      convertedWeight = (mailLength * mailWidth * mailHeight) / 5000;
-    }
-    console.log("convertedWeight 2",convertedWeight);
-    setConvertedWeight(convertedWeight);
-    return convertedWeight.toFixed(3);
-  };
   const [mailLength, setMailLength] = useState(0);
   const [mailWidth, setMailWidth] = useState(0);
   const [mailHeight, setMailHeight] = useState(0);
+  
   // const [serviceTypeID, setServiceTypeID] = useState("");
   const handleApplyAll = () => {
     setDataSourcePackage((prevData) => {
       const newData = [...prevData];
       const serviceTypeID = form.getFieldValue("Service");
-  
+
       for (let i = 0; i < packageQuantity; i++) {
         const item = newData[i];
         newData.splice(i, 1, {
           ...item,
-          PackageRealWeight: actualWeight,
-          PackageLength: mailLength,
-          PackageWeight: mailWidth,
-          PackageHeight: mailHeight,
+          PackageRealWeight: parseFloat(actualWeight).toFixed(3),
+          PackageLength: parseFloat(mailLength).toFixed(3),
+          PackageWeight: parseFloat(mailWidth).toFixed(3),
+          PackageHeight: parseFloat(mailHeight).toFixed(3),
+          PackageTotalWight: calculateWeight(),
+
           PackageConvertedWeight: calculateConvertedWeight({
-            MailLength: mailLength,
-            MailWidth: mailWidth,
-            MailHeight: mailHeight,
+            MailLength: parseFloat(mailLength).toFixed(3),
+            MailWidth: parseFloat(mailWidth).toFixed(3),
+            MailHeight: parseFloat(mailHeight).toFixed(3),
             ServiceTypeID: serviceTypeID,
           }),
-          PackageTotalWight: calculateWeight(),
           PackageNotes: <Input />,
         });
       }
-  
-      console.log("convertedWeight", );
+
+      console.log("convertedWeight");
       console.log("actualWeight", actualWeight);
       console.log("weight", weight);
       console.log("mailLength", mailLength);
       console.log("mailWidth", mailWidth);
       console.log("mailHeight", mailHeight);
       console.log("serviceTypeID", serviceTypeID);
-      console.log("newData", newData);
-  
+      console.log("newData 22", newData );
+
       return newData;
     });
   };
-  
+
   // Calculate the total converted weight by adding up all the converted weights in the table
 
-  const [totalConvertedWeight, setTotalConvertedWeight] = useState(0);
-  const [totalWeight, setTotalWeight] = useState(0);
-  const calculateTotalConvertedWeight = () => {
-    let totalConvertedWeight = 0.0;
-    let count = 0;
-    for (let i = 0; i < dataSourcePackage.length; i++) {
-      const item = dataSourcePackage[i];
-      const convertedWeight = item.PackageConvertedWeight;
-      if (convertedWeight) {
-        totalConvertedWeight += parseFloat(convertedWeight);
-        count++;
-      }
-    }
-    // setTotalConvertedWeight(totalConvertedWeight);
-    // console.log("totalConvertedWeight", totalConvertedWeight);
-    return totalConvertedWeight.toFixed(3);
-  };
+  // const columns = defaultColumns.map((col) => {
 
-  const calculateTotalWeight = () => {
-    let totalWeight = 0.0;
-    let count = 0;
-    for (let i = 0; i < dataSourcePackage.length; i++) {
-      const item = dataSourcePackage[i];
-      const weight = item.PackageTotalWight;
-      if (weight) {
-        totalWeight += parseFloat(weight);
-        count++;
-      }
-    }
-    // setTotalWeight(totalWeight);
-    // console.log("totalWeight", totalWeight);
-    return totalWeight.toFixed(3);
-  };
-
-  const [inputValue, setInputValue] = useState({
-    PackageRealWeight: " ",
-  });
-
-
-  const [defaultTotalRealWeight, setDefaultTotalRealWeight] = useState('0.000');
-  const [defaultTotalWeight, setDefaultTotalWeight] = useState('0.000');
-  const [defaultTotalConvertedWeight, setDefaultTotalConvertedWeight] = useState('0.000');
-  useEffect(() => {
-    const defaultTotalRealWeight = calculateTotalRealWeight();
-    setDefaultTotalRealWeight(defaultTotalRealWeight);
-    const defaultTotalWeight = calculateTotalWeight();
-    setDefaultTotalWeight(defaultTotalWeight);
-    const defaultTotalConvertedWeight = calculateTotalConvertedWeight();
-    setDefaultTotalConvertedWeight(defaultTotalConvertedWeight);
-    // const defaultPackageQuantity = dataSourcePackage.length;
-    // setPackageQuantity(defaultPackageQuantity);
-
-  }, []);
-
-
-
-  const calcutlateTotalHeigth = () => {
-    let totalHeight = 0.0;
-    let count = 0;
-    for (let i = 0; i < dataSourcePackage.length; i++) {
-      const item = dataSourcePackage[i];
-      const height = item.PackageHeight;
-      if (height) {
-        totalHeight += parseFloat(height);
-        count++;
-      }
-    }
-    // setTotalWeight(totalWeight);
-    return totalHeight.toFixed(3);
-  };
-
-  const calculateTotalLength = () => {
-    let totalLength = 0.0;
-    let count = 0;
-    for (let i = 0; i < dataSourcePackage.length; i++) {
-      const item = dataSourcePackage[i];
-      const length = item.PackageLength;
-      if (length) {
-        totalLength += parseFloat(length);
-        count++;
-      }
-    }
-    // setTotalWeight(totalWeight);
-    return totalLength.toFixed(3);
-  };
-
-  const calculateTotalWidth = () => {
-    let totalWidth = 0.0;
-    let count = 0;
-    for (let i = 0; i < dataSourcePackage.length; i++) {
-      const item = dataSourcePackage[i];
-      const width = item.PackageWeight;
-      if (width) {
-        totalWidth += parseFloat(width);
-        count++;
-      }
-    }
-    // setTotalWeight(totalWeight);
-    return totalWidth.toFixed(3);
-  };
-
-
-
-  const calculateTotalRealWeight = () => {
-    
-
-    let totalRealWeight = 0.0;
-
-    let count = 0;
-    for (let i = 0; i < dataSourcePackage.length; i++) {
-      const item = dataSourcePackage[i];
-      const realWeight = item.PackageRealWeight;
-      if (realWeight) {
-        totalRealWeight += parseFloat(realWeight);
-        count++;
-      }
-    }
-    // setTotalWeight(totalWeight);
-    return totalRealWeight.toFixed(3);
-  };
-  // if number of packageAmount is different from 0, then converted weight = total converted weight, TL = Total TL,
-  // console.log("123", dataSourcePackage.length);
-  
-  const PackageNotes = () => {
-    let PackageNotes = "";
-    for (let i = 0; i < dataSourcePackage.length; i++) {
-      const item = dataSourcePackage[i];
-      const notes = item.PackageNotes;
-      if (notes) {
-        PackageNotes += notes;
-      }
-    }
-    return PackageNotes;
-  };
-
-
-
-
-  const handleWeightChange = (value) => {
-    const totalConvertedWeight = calculateTotalConvertedWeight(value);
-    const totalWeight = calculateTotalWeight(value);
-    const totalRealWeight = calculateTotalRealWeight(value);
-    form.setFieldsValue({
-      Converted_weight: totalConvertedWeight,
-      Weight: totalWeight,
-      Actual_weight: totalRealWeight,
-
-    });
-  };
-//Take only 1 converted weight value and the first weight.
-const getFirstConvertedWeight = () => {
- let firstConvertedWeight = 0;
-  for (let i = 0; i < dataSourcePackage.length; i++) {
-    const item = dataSourcePackage[0];
-    const firstItem = item.PackageConvertedWeight;
-    firstConvertedWeight = firstItem ? parseFloat(firstItem).toFixed(3) : "0.000";
-  }
-  return firstConvertedWeight;
-};
-
-const getFirstWeight = () => {
-  let firstWeight = 0;
-  for (let i = 0; i < dataSourcePackage.length; i++) {
-    const item = dataSourcePackage[0];
-    const firstItem = item.PackageTotalWight;
-    firstWeight = firstItem ? parseFloat(firstItem).toFixed(3) : "0.000";
-  }
-  return firstWeight;
-};
-
-// // Usage
-// const firstConvertedWeight = getFirstConvertedWeight();
-// const firstWeight = getFirstWeight();
-
-// Now, you can use `convertedWeight` and `weight` in your API call or wherever needed.
-
-  // const [packageAmount, setPackageAmount] = useState(0);
-  // const handleUpdatePackageQuantity = (value) => {
-  //   console.log("value", value);
-  //   setPackageQuantity(value);
-  // };
-
-  // const handlePackageQuantityChange = (e) => {
-  //   formModal.setFieldsValue({
-  //     Package_Quantity_Modal: e.target.value,
-  //   });
-  // };
   const symbols = [
     {
       value: " ",
@@ -1123,7 +1311,7 @@ const getFirstWeight = () => {
   };
 
   const handleTypeChange = (value) => {
-    setSelectedType(value);
+    setSelectedType("");
     const serviceValue = form.getFieldValue("Service");
     if (!serviceValue) {
       // Show error modal
@@ -1133,15 +1321,49 @@ const getFirstWeight = () => {
       });
       form.setFieldsValue({
         Type: "",
+        Actual_weight: 0,
+      Converted_weight: 0,
+      Weight: 0,
+      Package_Quantity: 0,
+      
+
       });
+      setDefaultTotalRealWeight("0.000");
+      setDefaultTotalConvertedWeight("0.000");
+      setDefaultTotalWeight("0.000");
+
       
     } else {
       setSelectedType(value);
+      form.setFieldsValue({
+        Actual_weight: 0,
+        Converted_weight: 0,
+        Weight: 0,
+        Package_Quantity: 0,
+        
+        
+      });
+      setDataSourcePackage([]);
+      formModal.resetFields();
+
+      setDefaultTotalRealWeight("0.000");
+      setDefaultTotalConvertedWeight("0.000");
+      setDefaultTotalWeight("0.000");
     }
+    
   };
 
+  const resetFields = () => {
+    setActualWeight(0);
+    form.setFieldsValue({
+      Actual_weight: 0,
+      Weight: 0,
+      Converted_weight: 0,
+      // Package_Quantity: 0,
+    });
+  };
   const handleRealWeightChange = (value) => {
-    setActualWeight(value);
+    setActualWeight(0);
     const serviceValue = form.getFieldValue("Service");
     const selectedType = form.getFieldValue("Type");
     if (!serviceValue) {
@@ -1152,22 +1374,63 @@ const getFirstWeight = () => {
       });
 
       // Reset the weight
-      setActualWeight(0);
-    } else if (selectedType === "TL" && value > 2) {
+      resetFields();
+      setDefaultTotalRealWeight("0.000");
+      setDefaultTotalConvertedWeight("0.000");
+      setDefaultTotalWeight("0.000");
+
+    } 
+     if (serviceValue && !selectedType) {
+      Modal.error({
+        title: "Error",
+        content: "Hãy chọn loại hình trước khi nhập TL thực",
+      });
+      resetFields();
+      setDefaultTotalRealWeight("0.000");
+      setDefaultTotalConvertedWeight("0.000");
+      setDefaultTotalWeight("0.000");
+    }
+    
+     if (serviceValue && selectedType === "TL" && value > 2) {
       Modal.error({
         title: "Error",
         content: "Loại hình tài liệu chỉ được nhập TL thực nhỏ hơn 2kg",
       });
-      setActualWeight(0);
-      form.setFieldsValue({
-        Actual_weight: 0,
-      });
-      setConvertedWeight(0);
-      setWeight(0);
-    } else {
+      resetFields();
+      setDefaultTotalRealWeight("0.000");
+      setDefaultTotalConvertedWeight("0.000");
+      setDefaultTotalWeight("0.000");
+      
+    } 
+    if (serviceValue && selectedType === "HH") {
       handleActualWeightChange(value);
     }
+    if (dataSourcePackage.length === 0) {
+      form.setFieldsValue({
+        Converted_weight: 0,
+        Actual_weight: value,
+        Weight: value,
+
+      });
+    }
   };
+
+  const handleWeightChangeTL = (value) => {
+    if (dataSourcePackage.length === 0) {
+
+     
+      form.setFieldsValue({
+        Converted_weight: 0,
+       
+        Actual_weight: value,
+        Weight: value,
+      });
+
+    }
+  };
+  
+
+
   let ModalOpenTaokien = false;
 
   const showModalTaokien = () => {
@@ -1197,217 +1460,204 @@ const getFirstWeight = () => {
 
   return (
     <div className="form-create">
-       <Modal
-                  title="Tạo kiện"
-                  open={isModalOpen}
-                  onOk={handleOk}
-                  onCancel={handleCancel}
-                  width={1200}
+      <Modal
+        title="Tạo kiện"
+        open={isModalOpen}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        width={1200}
+      >
+        <Form form={formModal}>
+          <Row gutter={[24, 8]}>
+            <Col span={8}>
+              <Form.Item
+                label="Số kiện"
+                name="Package_Quantity_Modal"
+                // dependencies={["Package_Quantity_Modal"]}
+                rules={[
+                  {
+                    pattern: /^(?:[2-9]|[1-9][0-9]+)$/,
+                    message: "Chỉ nhập số nguyên dương lớn hơn 2",
+                  },
+                ]}
+              >
+                <Input
+                  min={0}
+                  max={100}
+                  defaultValue={0}
+                  onChange={(e) => {
+                    setPackageQuantity(e.target.value);
+                  }}
+                />
+              </Form.Item>
+            </Col>
+
+            <Col span={8}>
+              <Form.Item label="Chọn ký hiệu" name="Symbol">
+                <Select
+                  showSearch
+                  placeholder=""
+                  optionFilterProp="children"
+                  filterOption={(input, option) => {
+                    const value = option.value || "";
+                    return value.toLowerCase().includes(input.toLowerCase());
+                  }}
                 >
-                  <Form form={formModal} 
-                  >
-                    <Row gutter={[24, 8]}>
-                      <Col span={8}>
-                        <Form.Item
-                          label="Số kiện"
-                          name="Package_Quantity_Modal"
-                          // dependencies={["Package_Quantity_Modal"]}
-                          rules={[
-                            {
-                              pattern: /^(?:[2-9]|[1-9][0-9]+)$/,
-                              message: "Chỉ nhập số nguyên dương lớn hơn 2",
-                            },
-                            
-                          ]}
-                        >
-                          <Input
-                            min={0}
-                            max={100}
-                            defaultValue={0}
-                            onChange={(e) => {
-                              setPackageQuantity(e.target.value);
-                            }
-                            }
-                            
-                          />
-                          
-                        </Form.Item>
-                      </Col>
+                  {symbols.map((symbols) => (
+                    <Option key={symbols.value} value={symbols.value}>
+                      {symbols.label}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Button
+                type="primary"
+                htmlType="submit"
+                onClick={() => applyChanges()}
+              >
+                Áp dụng
+              </Button>
+            </Col>
+          </Row>
+          <Row gutter={[24, 8]}>
+            <Col span={4}>
+              <Form.Item
+                name="Actual_weight_Modal"
+                rules={[
+                  {
+                    pattern: /^(?:[1-9]\d*|0)(?:\.\d+)?$/,
+                    message: "Chỉ nhập số lớn hơn 0",
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="TL thực (kg)"
+                  min={0}
+                  max={100}
+                  onChange={(e) => setActualWeight(e.target.value)}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={4}>
+              <Form.Item
+                name="mail_length"
+                rules={[
+                  {
+                    pattern: /^(?:[1-9]\d*|0)(?:\.\d+)?$/,
+                    message: "Chỉ nhập số lớn hơn 0",
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="Dài (cm)"
+                  min={0}
+                  max={100}
+                  onChange={(e) => {
+                    setMailLength(e.target.value);
+                  }}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={4}>
+              <Form.Item
+                name="mail_width"
+                rules={[
+                  {
+                    pattern: /^(?:[1-9]\d*|0)(?:\.\d+)?$/,
+                    message: "Chỉ nhập số lớn hơn 0",
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="Rộng (cm)"
+                  min={0}
+                  max={100}
+                  onChange={(e) => {
+                    setMailWidth(e.target.value);
+                  }}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={4}>
+              <Form.Item
+                name="mail_height"
+                rules={[
+                  {
+                    pattern: /^(?:[1-9]\d*|0)(?:\.\d+)?$/,
+                    message: "Chỉ nhập số lớn hơn 0",
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="Cao (cm)"
+                  min={0}
+                  max={100}
+                  onChange={(e) => setMailHeight(e.target.value)}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={4}>
+              <Button type="primary" htmlType="submit" onClick={handleApplyAll}>
+                Áp dụng cho tất cả các kiện
+              </Button>
+            </Col>
+          </Row>
+          <Table
+            components={{
+              body: {
+                cell: EditableCell,
+              },
+            }}
+            rowClassName={() => "editable-row"}
+            bordered
+            dataSource={dataSourcePackage}
+            columns={mergedColumns}
+          />
+          <Row gutter={[24, 8]}>
+            <Col span={8}>
+              <Form.Item label="Tổng TL thực (kg)" name="Total_real_weight">
+                <Input
+                  placeholder=""
+                  min={0}
+                  max={100}
+                  disabled
+                  value={calculateTotalRealWeight()}
+                />
+                &nbsp;
+              </Form.Item>
+            </Col>
 
-                      <Col span={8}>
-                        <Form.Item label="Chọn ký hiệu" name="Symbol">
-                          <Select
-                            showSearch
-                            placeholder=""
-                            optionFilterProp="children"
-                            filterOption={(input, option) => {
-                              const value = option.value || "";
-                              return value
-                                .toLowerCase()
-                                .includes(input.toLowerCase());
-                            }}
-                          >
-                            {symbols.map((symbols) => (
-                              <Option key={symbols.value} value={symbols.value}>
-                                {symbols.label}
-                              </Option>
-                            ))}
-                          </Select>
-                        </Form.Item>
-                      </Col>
-                      <Col span={8}>
-                        <Button
-                          type="primary"
-                          htmlType="submit"
-                          onClick={() => applyChanges()}
-                        >
-                          Áp dụng
-                        </Button>
-                      </Col>
-                    </Row>
-                    <Row gutter={[24, 8]}>
-                      <Col span={4}>
-                        <Form.Item
-                          name="Actual_weight_Modal"
-                          rules={[
-                            {
-                              pattern: /^(?:[1-9]\d*|0)(?:\.\d+)?$/,
-                              message: "Chỉ nhập số lớn hơn 0",
-                            },
-                          ]}
-                        >
-                          <Input
-                            placeholder="TL thực (kg)"
-                            min={0}
-                            max={100}
-                            onChange={(e) => setActualWeight(e.target.value)}
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col span={4}>
-                        <Form.Item
-                          name="mail_length"
-                          rules={[
-                            {
-                              pattern: /^(?:[1-9]\d*|0)(?:\.\d+)?$/,
-                              message: "Chỉ nhập số lớn hơn 0",
-                            },
-                          ]}
-                        >
-                          <Input
-                            placeholder="Dài (cm)"
-                            min={0}
-                            max={100}
-                            onChange={(e) => {
-                              setMailLength(e.target.value);
-                            }}
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col span={4}>
-                        <Form.Item
-                          name="mail_width"
-                          rules={[
-                            {
-                              pattern: /^(?:[1-9]\d*|0)(?:\.\d+)?$/,
-                              message: "Chỉ nhập số lớn hơn 0",
-                            },
-                          ]}
-                        >
-                          <Input
-                            placeholder="Rộng (cm)"
-                            min={0}
-                            max={100}
-                            onChange={(e) => {
-                              setMailWidth(e.target.value);
-                            }}
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col span={4}>
-                        <Form.Item
-                          name="mail_height"
-                          rules={[
-                            {
-                              pattern: /^(?:[1-9]\d*|0)(?:\.\d+)?$/,
-                              message: "Chỉ nhập số lớn hơn 0",
-                            },
-                          ]}
-                        >
-                          <Input
-                            placeholder="Cao (cm)"
-                            min={0}
-                            max={100}
-                            onChange={(e) => setMailHeight(e.target.value)}
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col span={4}>
-                        <Button
-                          type="primary"
-                          htmlType="submit"
-                          onClick={handleApplyAll}
-                        >
-                          Áp dụng cho tất cả các kiện
-                        </Button>
-                      </Col>
-                    </Row>
-                    <Table
-                      rowClassName={() => "editable-row"}
-                      bordered
-                      dataSource={dataSourcePackage}
-                      columns={defaultColumns}
-                    />
-                    <Row gutter={[24, 8]}>
-                      <Col span={8}>
-                        <Form.Item
-                          label="Tổng TL thực (kg)"
-                          name="Total_real_weight"
-                        >
-                          <Input
-                            placeholder=""
-                            min={0}
-                            max={100}
-                            disabled
-                            value={calculateTotalRealWeight()}
-                          />
-                          &nbsp;
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={8}>
-                        <Form.Item label="Tổng TL (kg)" name="Total_weight">
-                          <Input
-                            placeholder=""
-                            min={0}
-                            max={100}
-                            disabled
-                            value={calculateTotalWeight()}
-                          />
-                          &nbsp;
-                        </Form.Item>
-                      </Col>
-                      <Col span={8}>
-                        <Form.Item
-                          label="Tổng TLQĐ (kg)"
-                          name="Total_converted_weight"
-                        >
-                          <Input
-                            placeholder=""
-                            min={0}
-                            max={100}
-                            disabled
-                            value={calculateTotalConvertedWeight()}
-                          />
-                          &nbsp;
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                  </Form>
-                </Modal>
+            <Col span={8}>
+              <Form.Item label="Tổng TL (kg)" name="Total_weight">
+                <Input
+                  placeholder=""
+                  min={0}
+                  max={100}
+                  disabled
+                  value={calculateTotalWeight()}
+                />
+                &nbsp;
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item label="Tổng TLQĐ (kg)" name="Total_converted_weight">
+                <Input
+                  placeholder=""
+                  min={0}
+                  max={100}
+                  disabled
+                  value={calculateTotalConvertedWeight()}
+                />
+                &nbsp;
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
+      </Modal>
 
       <Typography.Title level={3}>TẠO ĐƠN HÀNG</Typography.Title>
-
 
       <Form form={form}>
         {/* -------------Thông tin người gửi----------- */}
@@ -1425,6 +1675,12 @@ const getFirstWeight = () => {
                   label="Mã khách hàng"
                   name="customerId"
                   className="min-width-100"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn mã khách hàng",
+                    },
+                  ]}
                 >
                   <Select
                     showSearch
@@ -1435,12 +1691,12 @@ const getFirstWeight = () => {
                     //   return value.toLowerCase().includes(input.toLowerCase());
                     // }}
                     onChange={handleCustomerChange}
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng chọn mã khách hàng",
-                      },
-                    ]}
+                    // rules={[
+                    //   {
+                    //     required: true,
+                    //     message: "Vui lòng chọn mã khách hàng",
+                    //   },
+                    // ]}
                   >
                     {customer.map((opt) => (
                       <Option key={opt.value} value={opt.value}>
@@ -1457,6 +1713,7 @@ const getFirstWeight = () => {
                   label="Số điện thoại"
                   name="Phone_Number_1"
                   className="min-width-100"
+                  
                 >
                   <Input value={customerInfo.phoneNumber} />
                   &nbsp;
@@ -1470,6 +1727,7 @@ const getFirstWeight = () => {
                   label="Tên công ty"
                   name="Company_name"
                   className="min-width-100"
+                 
                 >
                   <Input
                     placeholder=""
@@ -1491,6 +1749,7 @@ const getFirstWeight = () => {
                   label="Địa chỉ KH"
                   name="Address_1"
                   className="min-width-100"
+                 
                 >
                   <Input value={customerInfo.address} />
                   &nbsp;
@@ -1505,6 +1764,12 @@ const getFirstWeight = () => {
                   label="Người gửi"
                   name="Send"
                   className="min-width-100"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng nhập người gửi",
+                    },
+                  ]}
                 >
                   <Input />
                 </Form.Item>
@@ -1515,6 +1780,7 @@ const getFirstWeight = () => {
                   label="Đại diện gửi"
                   name="Sending_representative"
                   className="min-width-100"
+                  
                 >
                   <Input showSearch />
                 </Form.Item>
@@ -1534,6 +1800,7 @@ const getFirstWeight = () => {
                     {
                       pattern: /^[0-9]+$/,
                       message: "Vui lòng chỉ nhập số.",
+                      required: true,
                     },
                   ]}
                 >
@@ -1546,6 +1813,12 @@ const getFirstWeight = () => {
                   label="Họ tên nhận"
                   name="Receiver_Name"
                   className="min-width-100"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng nhập họ tên người nhận",
+                    },
+                  ]}
                 >
                   <Input showSearch />
                 </Form.Item>
@@ -1558,6 +1831,12 @@ const getFirstWeight = () => {
                   label="Công ty nhận"
                   name="Receiver_Company"
                   className="min-width-100"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng nhập tên công ty",
+                    },
+                  ]}
                 >
                   <Input showSearch />
                 </Form.Item>
@@ -1571,6 +1850,12 @@ const getFirstWeight = () => {
                   label="Địa chỉ NN"
                   name="Address_2"
                   className="min-width-100"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng nhập địa chỉ",
+                    },
+                  ]}
                 >
                   <Input showSearch />
                 </Form.Item>
@@ -1583,6 +1868,12 @@ const getFirstWeight = () => {
                   label="Quốc gia"
                   name="Nation"
                   className="min-width-100"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn quốc gia",
+                    },
+                  ]}
                 >
                   <Select
                     showSearch
@@ -1604,6 +1895,12 @@ const getFirstWeight = () => {
                   label="Tỉnh/thành"
                   name="City"
                   className="min-width-100"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn tỉnh/thành",
+                    },
+                  ]}
                 >
                   <Select
                     showSearch
@@ -1628,6 +1925,12 @@ const getFirstWeight = () => {
                   label="Quận/huyện"
                   name="District"
                   className="min-width-100"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn quận/huyện",
+                    },
+                  ]}
                 >
                   <Select
                     showSearch
@@ -1653,6 +1956,12 @@ const getFirstWeight = () => {
                   label="Phường/xã"
                   name="Ward"
                   className="min-width-100"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn phường/xã",
+                    },
+                  ]}
                 >
                   <Select
                     showSearch
@@ -1680,6 +1989,12 @@ const getFirstWeight = () => {
                   label="Địa chỉ chi tiết"
                   name="Address_3"
                   className="min-width-100"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng nhập địa chỉ chi tiết",
+                    },
+                  ]}
                 >
                   <Input />
                 </Form.Item>
@@ -1693,6 +2008,12 @@ const getFirstWeight = () => {
                   label="Mã địa chỉ"
                   name="AddressID"
                   className="min-width-100"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng nhập mã địa chỉ",
+                    },
+                  ]}
                 >
                   <Input showSearch />
                 </Form.Item>
@@ -1712,6 +2033,12 @@ const getFirstWeight = () => {
                   label="Vùng phát"
                   name="Broadcast_Area"
                   className="min-width-100"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn vùng phát",
+                    },
+                  ]}
                 >
                   <Select
                     showSearch
@@ -1732,6 +2059,7 @@ const getFirstWeight = () => {
                   label="BC phát"
                   name="Post_Office_Delivery"
                   className="min-width-100"
+                  
                 >
                   <Input value={broadcastInfo.postOfficeID} />
                   &nbsp;
@@ -1745,6 +2073,7 @@ const getFirstWeight = () => {
                   label="Tuyến GN phát"
                   name="Transmitter_Route"
                   className="min-width-100"
+                 
                 >
                   <Input value={broadcastInfo.shippingRouteID} />
                   &nbsp;
@@ -1765,6 +2094,12 @@ const getFirstWeight = () => {
                   label="Loại hình"
                   name="Type"
                   className="min-width-100"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn loại hình",
+                    },
+                  ]}
                 >
                   <Select
                     showSearch
@@ -1782,6 +2117,7 @@ const getFirstWeight = () => {
                         key={LH.value}
                         value={LH.value}
                         defaultValue={selectedType}
+                        
                       >
                         {LH.value}
                       </Option>
@@ -1791,14 +2127,13 @@ const getFirstWeight = () => {
               </Col>
               {/* Số kiện */}
               <Col className="gutter-row" span={8}>
-                <Form.Item label="Số kiện" name="Package_Quantity" 
-                >
-                
+                <Form.Item label="Số kiện" name="Package_Quantity">
                   <InputNumber
-                  min={0}
-                  max={100}
-                  disabled={selectedType === "TL" || selectedType === ""}
-                />
+                    min={0}
+                    max={100}
+                    readOnly
+                    disabled={selectedType === "TL" || selectedType === ""}
+                  />
                 </Form.Item>
               </Col>
               {/* Tạo kiện */}
@@ -1814,7 +2149,6 @@ const getFirstWeight = () => {
                   </Button>
                 </Form.Item>
                 {/* ----------------------NHẬP KIỆN------------ */}
-               
               </Col>
             </Row>
 
@@ -1825,14 +2159,25 @@ const getFirstWeight = () => {
                   label="TL thực"
                   name="Actual_weight"
                   className="min-width-100"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng nhập TL thực",
+                    },
+                  ]}
+                 
                 >
                   <InputNumber
                     min={0}
                     max={100}
                     step={0.001}
-                    readOnly
-                    defaultValue={defaultTotalRealWeight}
-                    // value={calculateTotalRealWeight()}
+                    
+                    // defaultValue={defaultTotalRealWeight}
+                    // // value={calculateTotalRealWeight()}
+                    // onChange={handleRealWeightChange}
+                    // // value={actualWeight}
+
+                    // value={defaultTotalRealWeight}
                     onChange={handleRealWeightChange}
                   />
                 </Form.Item>
@@ -1846,32 +2191,45 @@ const getFirstWeight = () => {
                     min={0}
                     max={100}
                     step={0.001}
-                    readOnly
-                    defaultValue={defaultTotalConvertedWeight}
-                    value={handleWeightChange()}
+                    disabled
+                    // value={defaultTotalConvertedWeight}
+                    onChange={handleConvertedWeightChange}
                   />
+                 
                 </Form.Item>
               </Col>
 
               {/* TL */}
               <Col className="gutter-row" span={6}>
-                <Form.Item label="TL" name="Weight" type="dashed" className="">
+                <Form.Item
+                  label="TL"
+                  name="Weight"
+                  type="dashed"
+                  className=""
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng nhập TL",
+                    },
+                  ]}
+                >
                   <InputNumber
-                    type="dashed"
                     style={{ color: "red" }}
                     min={0}
                     max={100}
                     // onChange={handleWeightChange} // Call the function on change
                     step={0.001}
-                    value={handleWeightChange}
-                    // defaultValue={weight}
-                    // value={calculateTotalWeight()}
-                    defaultValue={defaultTotalWeight}
-                    // value={calculateTotalWeight()}
+                    // value={handleWeightChange}
+                    // // defaultValue={weight}
+                    // // value={calculateTotalWeight()}
+                    // defaultValue={defaultTotalWeight}
+                    // // value={calculateTotalWeight()}
+                    // value={defaultTotalWeight}
+                    // onChange={handleWeightChange}
+                    onChange={updateWeight}
                     readOnly
-
-                    
                   />
+
                 </Form.Item>
               </Col>
             </Row>
@@ -1886,6 +2244,12 @@ const getFirstWeight = () => {
                   label="Dịch vụ"
                   name="Service"
                   className="min-width-100"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn dịch vụ",
+                    },
+                  ]}
                 >
                   <Select showSearch placeholder="" optionFilterProp="children">
                     {serviceType.map((opt) => (
@@ -1919,6 +2283,7 @@ const getFirstWeight = () => {
                   label="Ghi chú đặc biệt"
                   name="Service_Type_Notes"
                   className="min-width-100"
+                  
                 >
                   <Select
                     showSearch
@@ -1928,6 +2293,7 @@ const getFirstWeight = () => {
                       const value = option.value || "";
                       return value.toLowerCase().includes(input.toLowerCase());
                     }}
+                    disabled={selectedType === "TL" || selectedType === ""}
                   >
                     {Notes.map((Notes) => (
                       <Option key={Notes.value} value={Notes.value}>
@@ -1947,6 +2313,7 @@ const getFirstWeight = () => {
                     {
                       pattern: /^[0-9]+$/,
                       message: "Vui lòng chỉ nhập số.",
+                      required: true,
                     },
                   ]}
                 >
@@ -2075,13 +2442,7 @@ const getFirstWeight = () => {
               </Modal>
             </Form.Item>
           </Col>
-          <Col span={12} offset={12}>
-            <Form.Item label=" " colon={false} style={{ textAlign: "center" }}>
-              <Button type="primary" htmlType="submit" onClick={handleFormCreatePackage}>
-                Thêm kiện
-              </Button>
-            </Form.Item>
-          </Col>
+         
         </Row>
       </Form>
     </div>
